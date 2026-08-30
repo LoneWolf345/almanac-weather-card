@@ -5,7 +5,7 @@
  * https://github.com/LoneWolf345/almanac-weather-card
  */
 
-const DAC_VERSION = "2026.8.9";
+const DAC_VERSION = "2026.8.10";
 
 const INK = "#3a2d1f", CREAM = "#f6efdc", PAPER = "#f3e7d3", TAN = "#a3876a",
   BROWN = "#7a6248", TERRA = "#c65f38", AMBER = "#e8a03d", BLUE = "#5f7e94",
@@ -599,7 +599,7 @@ class AlmanacWeatherCard extends HTMLElement {
     // min point marker
     let minI = 0; hrs.forEach((h, i) => { if (h.temperature < hrs[minI].temperature) minI = i; });
     const mp = pts[minI];
-    const minMark = minI > 2 ? `<circle cx="${mp[0].toFixed(1)}" cy="${mp[1].toFixed(1)}" r="3" fill="${TERRA}"/><text x="${(mp[0] + 8).toFixed(1)}" y="${(mp[1] - 5).toFixed(1)}" font-size="10" font-weight="700" fill="${TERRA}">${r0(hrs[minI].temperature)}° low</text>` : "";
+    const minMark = minI > 2 ? `<circle cx="${mp[0].toFixed(1)}" cy="${mp[1].toFixed(1)}" r="3" fill="${TERRA}"/><text x="${(mp[0] + 8).toFixed(1)}" y="${(mp[1] + 14).toFixed(1)}" font-size="10" font-weight="700" fill="${TERRA}">${r0(hrs[minI].temperature)}° low</text>` : "";
     const gridT = (f) => Math.round(tMax - (tMax - tMin) * f);
     const punit = w.attributes.precipitation_unit === "mm" ? "PRECIP %" : "PRECIP %";
     return `
@@ -608,6 +608,7 @@ class AlmanacWeatherCard extends HTMLElement {
       <svg viewBox="0 0 452 180" class="chartsvg">
         <line x1="0" y1="18" x2="452" y2="18" stroke="${GRID}"/><line x1="0" y1="62" x2="452" y2="62" stroke="${GRID}"/><line x1="0" y1="106" x2="452" y2="106" stroke="${GRID}"/>
         <text x="0" y="14" font-size="9" fill="${TAN}">${gridT(0)}°</text><text x="0" y="58" font-size="9" fill="${TAN}">${gridT(0.5)}°</text><text x="0" y="102" font-size="9" fill="${TAN}">${gridT(1)}°</text>
+        <text x="452" y="115" text-anchor="end" font-size="9" fill="${BLUE}">100%</text><text x="452" y="134" text-anchor="end" font-size="9" fill="${BLUE}">50</text><text x="452" y="152" text-anchor="end" font-size="9" fill="${BLUE}">0</text>
         <g fill="${BLUE}">${bars}</g>
         <path d="${path}" fill="none" stroke="${TERRA}" stroke-width="2.5" stroke-linecap="round" class="curve"/>
         <circle cx="${pts[0][0]}" cy="${pts[0][1].toFixed(1)}" r="4" fill="${TERRA}"/>
