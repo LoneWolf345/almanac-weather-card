@@ -1,4 +1,6 @@
-# Desert Almanac Card
+# Almanac Weather Card
+
+*Formerly the Desert Almanac Card — renamed when scenescapes made it useful well beyond the desert. The old `custom:desert-almanac-card` card type still works as an alias.*
 
 An editorial, almanac-style weather panel for Home Assistant. Sand-paper background, serif masthead, and an illustrated desert scene where **the sun and moon ride their real arc across the sky in realtime** — the scene brightens at dawn, washes warm at sunset, and falls dark with stars at night, with both bodies rising and setting behind the mountains.
 
@@ -24,12 +26,12 @@ An editorial, almanac-style weather panel for Home Assistant. Sand-paper backgro
 ## Installation (HACS)
 
 1. HACS → menu (⋮) → **Custom repositories**
-2. Add `https://github.com/LoneWolf345/desert-almanac-card` with category **Dashboard** (Plugin)
-3. Install **Desert Almanac Card** — HACS registers the resource automatically
+2. Add `https://github.com/LoneWolf345/almanac-weather-card` with category **Dashboard** (Plugin)
+3. Install **Almanac Weather Card** — HACS registers the resource automatically
 4. Add the card to a dashboard:
 
 ```yaml
-type: custom:desert-almanac-card
+type: custom:almanac-weather-card
 entity: weather.home
 ```
 
@@ -51,7 +53,7 @@ entity: weather.home
 Example with everything:
 
 ```yaml
-type: custom:desert-almanac-card
+type: custom:almanac-weather-card
 entity: weather.home
 location: Maricopa, Arizona
 alert_label: MONSOON WATCH
@@ -62,7 +64,7 @@ alerts_entity: sensor.nws_alerts
 Appalachian mountains flavor:
 
 ```yaml
-type: custom:desert-almanac-card
+type: custom:almanac-weather-card
 entity: weather.home
 scene: appalachia
 seasons: true
@@ -78,7 +80,7 @@ alerts_entity: sensor.nws_alerts
 
 ## Versioning
 
-This card follows Home Assistant's CalVer style: `YYYY.M.PATCH`. Current: **2026.8.4**.
+This card follows Home Assistant's CalVer style: `YYYY.M.PATCH`. Current: **2026.8.5**.
 
 ---
 

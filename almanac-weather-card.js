@@ -1,10 +1,11 @@
-/* Desert Almanac Card — an editorial, almanac-style weather panel for Home Assistant.
- * Sun and moon ride their real arc across a desert scene in realtime; the scene
- * darkens at night. 24-hour temp/precip chart, conditions strip, week-ahead range bars.
- * https://github.com/LoneWolf345/desert-almanac-card
+/* Almanac Weather Card (formerly Desert Almanac Card) — an editorial, almanac-style
+ * weather panel for Home Assistant. Sun and moon ride their real arc over a scenescape
+ * (desert or Appalachia) that reacts to conditions in realtime; the scene darkens at
+ * night. 24-hour temp/precip chart, conditions strip, week-ahead range bars.
+ * https://github.com/LoneWolf345/almanac-weather-card
  */
 
-const DAC_VERSION = "2026.8.4";
+const DAC_VERSION = "2026.8.5";
 
 const INK = "#3a2d1f", CREAM = "#f6efdc", PAPER = "#f3e7d3", TAN = "#a3876a",
   BROWN = "#7a6248", TERRA = "#c65f38", AMBER = "#e8a03d", BLUE = "#5f7e94",
@@ -183,7 +184,7 @@ function heatWord(t, unit) {
 }
 const r0 = (v) => (v == null || isNaN(v) ? "—" : Math.round(v));
 
-class DesertAlmanacCard extends HTMLElement {
+class AlmanacWeatherCard extends HTMLElement {
   constructor() {
     super();
     this.attachShadow({ mode: "open" });
@@ -201,7 +202,7 @@ class DesertAlmanacCard extends HTMLElement {
   }
 
   setConfig(config) {
-    if (!config.entity) throw new Error("desert-almanac-card: `entity` (a weather entity) is required");
+    if (!config.entity) throw new Error("almanac-weather-card: `entity` (a weather entity) is required");
     this._config = {
       sun_entity: "sun.sun",
       title: "THE DAILY ALMANAC",
@@ -742,13 +743,15 @@ if (!document.getElementById("da-card-font")) {
   document.head.appendChild(l);
 }
 
-customElements.define("desert-almanac-card", DesertAlmanacCard);
-console.info(`%c DESERT-ALMANAC-CARD %c ${DAC_VERSION} `, "background:#3a2d1f;color:#f3e7d3;font-weight:700", "background:#c65f38;color:#fff;font-weight:700");
+customElements.define("almanac-weather-card", AlmanacWeatherCard);
+/* legacy tag from when this was the Desert Almanac Card — existing dashboards keep working */
+customElements.define("desert-almanac-card", class extends AlmanacWeatherCard {});
+console.info(`%c ALMANAC-WEATHER-CARD %c ${DAC_VERSION} `, "background:#3a2d1f;color:#f3e7d3;font-weight:700", "background:#c65f38;color:#fff;font-weight:700");
 window.customCards = window.customCards || [];
 window.customCards.push({
-  type: "desert-almanac-card",
-  name: "Desert Almanac Card",
+  type: "almanac-weather-card",
+  name: "Almanac Weather Card",
   description: "Editorial almanac-style weather panel: realtime sun/moon arc over a desert or Appalachian scenescape that reacts to conditions, 24-hour chart, week-ahead outlook.",
   preview: true,
-  documentationURL: "https://github.com/LoneWolf345/desert-almanac-card",
+  documentationURL: "https://github.com/LoneWolf345/almanac-weather-card",
 });

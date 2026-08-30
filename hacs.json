@@ -1,6 +1,6 @@
 {
-  "name": "Desert Almanac Card",
+  "name": "Almanac Weather Card",
   "render_readme": true,
-  "filename": "desert-almanac-card.js",
+  "filename": "almanac-weather-card.js",
   "content_in_root": true
 }
