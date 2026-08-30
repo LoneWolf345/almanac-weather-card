@@ -4,7 +4,7 @@
  * https://github.com/LoneWolf345/desert-almanac-card
  */
 
-const DAC_VERSION = "2026.8.2";
+const DAC_VERSION = "2026.8.3";
 
 const INK = "#3a2d1f", CREAM = "#f6efdc", PAPER = "#f3e7d3", TAN = "#a3876a",
   BROWN = "#7a6248", TERRA = "#c65f38", AMBER = "#e8a03d", BLUE = "#5f7e94",
@@ -429,8 +429,10 @@ class DesertAlmanacCard extends HTMLElement {
   _week(w) {
     if (!this._daily?.length) return "";
     const days = this._daily.slice(0, this._config.days);
-    const lo = Math.floor(Math.min(...days.map((d) => d.templow ?? d.temperature)) / 5) * 5 - 5;
-    const hi = Math.ceil(Math.max(...days.map((d) => d.temperature)) / 5) * 5 + 5;
+    const realLo = Math.min(...days.map((d) => d.templow ?? d.temperature));
+    const realHi = Math.max(...days.map((d) => d.temperature));
+    const lo = Math.floor(realLo / 5) * 5 - 5;
+    const hi = Math.ceil(realHi / 5) * 5 + 5;
     const span = hi - lo;
     const nowT = w.attributes.temperature;
     let rows = "";
@@ -451,7 +453,7 @@ class DesertAlmanacCard extends HTMLElement {
         <div class="whi">${r0(dh)}</div>`;
     });
     return `<div class="pad week" data-ent="${esc(this._config.entity)}">
-      <div class="sect">THE WEEK AHEAD <span class="sectr">${lo}° ——— ${hi}°</span></div>
+      <div class="sect">THE WEEK AHEAD <span class="sectr">${r0(realLo)}° ——— ${r0(realHi)}°</span></div>
       <div class="wgrid">${rows}</div>
     </div>`;
   }
