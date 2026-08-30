@@ -5,7 +5,8 @@ An editorial, almanac-style weather panel for Home Assistant. Sand-paper backgro
 ## Features
 
 - **Realtime sky** — sun position is computed every minute from your `sun.sun` entity's rise/set times; the moon takes over at night. Dawn/dusk warm washes and the night tint are driven by solar elevation, so the panel always matches the sky outside.
-- **Condition-driven scenes** — the desert scene reacts to the weather: sepia-outlined clouds drift in when partly cloudy; a cumulus-field deck rolls over for cloudy/rain/storms; rain falls; lightning flashes the sky; wind brings gust streaks, dust puffs, and a rolling tumbleweed; and an active **Dust Storm Warning summons a full haboob** — a billowing dust wall that swallows the eastern ridge.
+- **Scenescapes** — pick your landscape with `scene:`: `desert` (default — saguaros, blowing dust, and a haboob wall when a Dust Storm Warning is active) or `appalachia` (rolling Blue-Ridge-style ridges with spruces, valley fog lying between the ridge lines, and optional seasonal foliage). The sun/moon arc, clouds, rain, lightning, snow, alert tiers, and charts are shared by every scene.
+- **Condition-driven scenes** — the desert scene reacts to the weather: sepia-outlined clouds drift in when partly cloudy; a cumulus-field deck rolls over for cloudy/rain/storms; rain falls; lightning flashes the sky; snow falls as real flakes with snow-capped ridges; fog settles as drifting banks; wind brings gust streaks, dust puffs, and a rolling tumbleweed (desert); and an active **Dust Storm Warning summons a full haboob** — a billowing dust wall that swallows the eastern ridge (desert).
 - **Three-tier alert band** — ink info band from forecast precip probability (label configurable, e.g. `MONSOON WATCH`), ochre advisory band and a pulsing red EAS-style warning band from an optional NWS alerts sensor (`alerts_entity`).
 - **Giant serif temperature** over the scene with condition, high/low, and feels-like; text flips to cream at night so it stays readable.
 - **24-hour chart** — smoothed temperature curve with precipitation-probability bars, auto-scaled, with "now" and overnight-low markers.
@@ -43,6 +44,8 @@ entity: weather.home
 | `alert_label` | `RAIN WATCH` | Label for the precipitation band |
 | `alert_threshold` | `25` | Precip probability (%) in the next 24 h that shows the band |
 | `alerts_entity` | *(none)* | NWS alerts sensor for advisory/warning bands + haboob scene |
+| `scene` | `desert` | Scenescape: `desert` or `appalachia` |
+| `seasons` | `false` | Appalachia only: ridge foliage follows the calendar (spring/summer/autumn/winter palettes) |
 | `days` | `7` | Days in the Week Ahead section |
 
 Example with everything:
@@ -56,6 +59,17 @@ alert_threshold: 25
 alerts_entity: sensor.nws_alerts
 ```
 
+Appalachian mountains flavor:
+
+```yaml
+type: custom:desert-almanac-card
+entity: weather.home
+scene: appalachia
+seasons: true
+alert_label: STORM WATCH
+alerts_entity: sensor.nws_alerts
+```
+
 ## Notes
 
 - The card commits to its almanac look (sand paper, ink text) in light and dark themes alike.
@@ -64,7 +78,7 @@ alerts_entity: sensor.nws_alerts
 
 ## Versioning
 
-This card follows Home Assistant's CalVer style: `YYYY.M.PATCH`. Current: **2026.8.3**.
+This card follows Home Assistant's CalVer style: `YYYY.M.PATCH`. Current: **2026.8.4**.
 
 ---
 

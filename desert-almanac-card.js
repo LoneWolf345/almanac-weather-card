@@ -4,7 +4,7 @@
  * https://github.com/LoneWolf345/desert-almanac-card
  */
 
-const DAC_VERSION = "2026.8.3";
+const DAC_VERSION = "2026.8.4";
 
 const INK = "#3a2d1f", CREAM = "#f6efdc", PAPER = "#f3e7d3", TAN = "#a3876a",
   BROWN = "#7a6248", TERRA = "#c65f38", AMBER = "#e8a03d", BLUE = "#5f7e94",
@@ -84,12 +84,63 @@ const HABOOB_LAYER = `<g style="animation:da-wallcreep 14s ease-in-out infinite"
 <g stroke="#c99e5f" stroke-width="2" stroke-linecap="round" opacity=".7">
 <g style="animation:da-duststream 3.2s linear infinite"><path d="M470 100 h-36 M498 140 h-30 M480 180 h-40 M508 60 h-26"/></g>
 <g style="animation:da-duststream 4.4s 1.1s linear infinite"><path d="M460 120 h-30 M492 160 h-34 M476 76 h-28"/></g></g>`;
-const MOUNTAINS = `<path d="M0 176 L70 138 L130 164 L210 126 L290 166 L370 136 L450 162 L520 140 L520 226 L0 226 Z" fill="#d9b98c"/>
-<path d="M0 194 L90 162 L170 186 L280 154 L390 188 L480 164 L520 178 L520 226 L0 226 Z" fill="#c69b66"/>
-<path d="M0 210 L110 190 L240 208 L360 186 L470 206 L520 196 L520 226 L0 226 Z" fill="#a3764a"/>`;
 const SAGUARO = (color) => `<g stroke="${color}" stroke-linecap="round" stroke-linejoin="round" fill="none">
 <path d="M96 224 V 184" stroke-width="7.5"/><path d="M96 202 H 86 V 190" stroke-width="6"/><path d="M96 208 H 106 V 198" stroke-width="6"/>
 <path d="M431 224 V 196" stroke-width="6"/><path d="M431 208 H 423 V 199" stroke-width="5"/></g>`;
+const SPRUCES = (color) => `<g fill="${color}">
+<g transform="translate(84,212)"><path d="M0 -30 L7 -16 L-7 -16 Z M0 -22 L9 -7 L-9 -7 Z M0 -13 L11 2 L-11 2 Z"/><rect x="-1.5" y="2" width="3" height="5"/></g>
+<g transform="translate(108,216)"><path d="M0 -24 L6 -13 L-6 -13 Z M0 -17 L7.5 -5 L-7.5 -5 Z M0 -10 L9 2 L-9 2 Z"/><rect x="-1.2" y="2" width="2.4" height="4"/></g>
+<g transform="translate(438,210)"><path d="M0 -32 L7.5 -17 L-7.5 -17 Z M0 -23 L9.5 -7 L-9.5 -7 Z M0 -13 L11.5 2 L-11.5 2 Z"/><rect x="-1.5" y="2" width="3" height="5"/></g>
+<g transform="translate(414,215)"><path d="M0 -21 L5.5 -11 L-5.5 -11 Z M0 -15 L7 -4 L-7 -4 Z M0 -8 L8.5 2 L-8.5 2 Z"/><rect x="-1.2" y="2" width="2.4" height="4"/></g></g>`;
+const SPRUCE_SNOW = `<g fill="#f6f1e3">
+<g transform="translate(84,212)"><path d="M0 -30 L5 -20 L-5 -20 Z M0 -23 L6 -14 L-6 -14 Z"/></g>
+<g transform="translate(438,210)"><path d="M0 -32 L5.5 -21 L-5.5 -21 Z M0 -24 L6.5 -15 L-6.5 -15 Z"/></g></g>`;
+const SNOW_LAYER = `<g fill="#fdfaf1" style="animation:da-snowfall 3.2s linear infinite">
+<circle cx="40" cy="70" r="2.2"/><circle cx="96" cy="110" r="1.8"/><circle cx="150" cy="66" r="2.4"/><circle cx="204" cy="122" r="1.8"/>
+<circle cx="258" cy="80" r="2.2"/><circle cx="312" cy="128" r="1.9"/><circle cx="366" cy="72" r="2.4"/><circle cx="420" cy="116" r="1.8"/>
+<circle cx="474" cy="84" r="2.2"/><circle cx="66" cy="160" r="1.9"/><circle cx="178" cy="168" r="2.2"/><circle cx="290" cy="172" r="1.8"/>
+<circle cx="402" cy="164" r="2.3"/><circle cx="500" cy="156" r="1.8"/><circle cx="126" cy="44" r="1.8"/><circle cx="238" cy="50" r="2"/>
+<circle cx="348" cy="42" r="1.8"/><circle cx="456" cy="52" r="2"/></g>`;
+
+/* ---- scenescape packs: the landscape layer of the card ---- */
+const APP_PAL = {
+  summer: ["#c3cdb4", "#a0b296", "#788f72", "#51704e"],
+  spring: ["#c9d2b8", "#a9bb9b", "#83987a", "#5c7a58"],
+  autumn: ["#dcc394", "#cd9a5a", "#b06a3a", "#7e4527"],
+  winter: ["#c2bda9", "#a29c86", "#7e7864", "#5c574a"],
+};
+function seasonOf(month) {
+  return [11, 0, 1].includes(month) ? "winter" : month <= 4 ? "spring" : month <= 7 ? "summer" : "autumn";
+}
+const SCENES = {
+  desert: {
+    ridges: () => [
+      { d: "M0 176 L70 138 L130 164 L210 126 L290 166 L370 136 L450 162 L520 140 L520 226 L0 226 Z", day: "#d9b98c", night: "#494060", cap: "#efe9da" },
+      { d: "M0 194 L90 162 L170 186 L280 154 L390 188 L480 164 L520 178 L520 226 L0 226 Z", day: "#c69b66", night: "#3c3452", cap: "#ece5d3" },
+      { d: "M0 210 L110 190 L240 208 L360 186 L470 206 L520 196 L520 226 L0 226 Z", day: "#a3764a", night: "#2f2944", cap: "#e8e0cc" },
+    ],
+    flora: SAGUARO, floraDay: "#6e5232", floraNight: "#231e36", floraSnow: "",
+    dust: true, haboob: true, fog: "ground",
+  },
+  appalachia: {
+    ridges: (pal) => [
+      { d: "M0 152 Q 60 118 130 138 T 260 130 T 390 142 T 520 126 L 520 226 L 0 226 Z", day: pal[0], night: "#3f4b57", cap: "#efe9da" },
+      { d: "M0 178 Q 80 146 170 164 T 340 156 T 520 166 L 520 226 L 0 226 Z", day: pal[1], night: "#353f4b", cap: "#ece5d3" },
+      { d: "M0 198 Q 90 172 200 188 T 400 180 T 520 192 L 520 226 L 0 226 Z", day: pal[2], night: "#2b343f", cap: "#e8e0cc" },
+      { d: "M0 214 Q 110 194 240 206 T 470 200 T 520 208 L 520 226 L 0 226 Z", day: pal[3], night: "#222a33", cap: "#ded5be" },
+    ],
+    flora: SPRUCES, floraDay: "#33492f", floraNight: "#1d2822", floraSnow: SPRUCE_SNOW,
+    dust: false, haboob: false, fog: "valley",
+  },
+};
+/* valley fog banks, indexed by the gap they sit in (after ridge i) */
+const FOG_BANKS = [
+  `<g style="animation:da-fog1 26s ease-in-out infinite"><ellipse cx="120" cy="158" rx="150" ry="16" fill="#f2ecda" opacity=".9"/><ellipse cx="360" cy="152" rx="180" ry="14" fill="#f2ecda" opacity=".85"/></g>`,
+  `<g style="animation:da-fog2 32s ease-in-out infinite"><ellipse cx="90" cy="186" rx="170" ry="17" fill="#efe8d4" opacity=".92"/><ellipse cx="400" cy="180" rx="190" ry="15" fill="#efe8d4" opacity=".88"/></g>`,
+  `<g style="animation:da-fog3 22s ease-in-out infinite"><ellipse cx="200" cy="206" rx="220" ry="16" fill="#ece4cf" opacity=".9"/><ellipse cx="470" cy="210" rx="140" ry="14" fill="#ece4cf" opacity=".85"/></g>`,
+];
+const GROUND_FOG = `<g style="animation:da-fog1 26s ease-in-out infinite"><ellipse cx="140" cy="200" rx="180" ry="15" fill="#efe8d4" opacity=".85"/></g>
+<g style="animation:da-fog2 32s ease-in-out infinite"><ellipse cx="390" cy="210" rx="200" ry="16" fill="#ece4cf" opacity=".85"/></g>`;
 
 /* point on the sky arc: M -35 265 Q 260 -75 545 265, t in [0,1] */
 function arcPoint(t) {
@@ -157,9 +208,12 @@ class DesertAlmanacCard extends HTMLElement {
       alert_label: "RAIN WATCH",
       alert_threshold: 25,
       alerts_entity: "",
+      scene: "desert",
+      seasons: false,
       days: 7,
       ...config,
     };
+    if (!SCENES[this._config.scene]) this._config.scene = "desert";
     this._sig = "";
     this._resub();
   }
@@ -302,21 +356,25 @@ class DesertAlmanacCard extends HTMLElement {
   /* ---- which scene layers does the current condition want ---- */
   _condLayers(w, nws) {
     const c = w.state, a = w.attributes;
-    const out = { clouds: null, rain: 0, bolts: false, dust: false, haboob: false, wash: null, condDark: false };
-    if (nws.dustWarning) { out.haboob = true; out.wash = ["#c08a4d", 0.14]; return out; }
+    const pack = SCENES[this._config.scene];
+    const out = { clouds: null, rain: 0, bolts: false, dust: false, haboob: false, snow: false, fog: false, wash: null, condDark: false };
+    if (nws.dustWarning && pack.haboob) { out.haboob = true; out.wash = ["#c08a4d", 0.14]; return out; }
     switch (c) {
       case "partlycloudy": out.clouds = "few"; break;
       case "cloudy": out.clouds = "field"; out.wash = ["#9b8f7a", 0.12]; break;
-      case "fog": out.clouds = "field"; out.wash = ["#b8b0a0", 0.3]; break;
+      case "fog": out.fog = true; out.wash = ["#e9e0ca", 0.28]; break;
       case "rainy": out.clouds = "rainfield"; out.rain = 1; out.wash = ["#4a5468", 0.14]; break;
-      case "snowy": case "snowy-rainy": out.clouds = "field"; out.rain = 1; out.wash = ["#9b8f7a", 0.12]; break;
+      case "snowy": out.clouds = "field"; out.snow = true; out.wash = ["#aab0b4", 0.12]; break;
+      case "snowy-rainy": out.clouds = "field"; out.snow = true; out.rain = 1; out.wash = ["#aab0b4", 0.14]; break;
       case "pouring": out.clouds = "rainfield"; out.rain = 2; out.wash = ["#4a5468", 0.2]; break;
       case "lightning": out.clouds = "stormfield"; out.bolts = true; out.wash = ["#3c4356", 0.26]; out.condDark = true; break;
       case "lightning-rainy": case "hail": out.clouds = "stormfield"; out.rain = 2; out.bolts = true; out.wash = ["#3c4356", 0.26]; out.condDark = true; break;
     }
     const windy = c === "windy" || c === "windy-variant" || (a.wind_gust_speed ?? 0) >= 30;
-    if ((nws.dustAdvisory || windy) && !out.clouds && !out.rain) { out.dust = true; if (!out.wash) out.wash = ["#d9b475", 0.2]; }
-    else if (windy && out.clouds === "few") out.dust = true;
+    if (pack.dust) {
+      if ((nws.dustAdvisory || windy) && !out.clouds && !out.rain && !out.fog && !out.snow) { out.dust = true; if (!out.wash) out.wash = ["#d9b475", 0.2]; }
+      else if (windy && out.clouds === "few") out.dust = true;
+    }
     return out;
   }
 
@@ -481,13 +539,30 @@ class DesertAlmanacCard extends HTMLElement {
     const wash = Math.max(0, 1 - Math.abs(e) / 8) * 0.24;
     const dark = e < 0 || cl.condDark;
     const tx = cl.haboob ? 200 : 260;
-    const hideSun = cl.haboob || ["field", "rainfield", "stormfield"].includes(cl.clouds);
+    const hideSun = cl.haboob || cl.fog || ["field", "rainfield", "stormfield"].includes(cl.clouds);
     let clouds = "";
     if (cl.clouds === "few") clouds = cloudC2(330, 84, 1, "#f8f1e0", "#8a6a3c", "dr1") + cloudC2(118, 56, 0.8, "#f8f1e0", "#8a6a3c", "dr2") + cloudC2(232, 112, 0.55, "#f8f1e0", "#8a6a3c", "dr3");
-    else if (cl.clouds === "field") clouds = cloudField("#e2d7bc", "#a08762", "#d3c5a3", "#8f7550");
+    else if (cl.clouds === "field") clouds = cl.snow ? cloudField("#cfc7b3", "#9b9280", "#c5bda9", "#8d8472") : cloudField("#e2d7bc", "#a08762", "#d3c5a3", "#8f7550");
     else if (cl.clouds === "rainfield") clouds = cloudField("#b7a88a", "#7d6845", "#a3946f", "#6d5a3a");
     else if (cl.clouds === "stormfield") clouds = cloudField("#9c8d72", "#5f5138", "#857659", "#514530");
     const glow = hideSun && sunP ? `<circle cx="${sunP.x.toFixed(1)}" cy="${Math.max(40, sunP.y).toFixed(1)}" r="26" fill="#e8c187" opacity=".45"/>` : "";
+    /* landscape from the scene pack */
+    const pack = SCENES[this._config.scene];
+    const season = this._config.seasons ? seasonOf(new Date().getMonth()) : "summer";
+    const ridges = pack.ridges(APP_PAL[season]);
+    const fogMode = cl.fog ? pack.fog : null;
+    let land = "";
+    ridges.forEach((r, i) => {
+      if (fogMode === "valley" && i > 0 && FOG_BANKS[i - 1]) land += FOG_BANKS[i - 1];
+      if (cl.snow) land += `<path d="${r.d}" fill="${r.cap}"/><g transform="translate(0,7)"><path d="${r.d}" fill="${r.day}"/></g>`;
+      else land += `<path d="${r.d}" fill="${r.day}"/>`;
+    });
+    land += pack.flora(pack.floraDay);
+    if (cl.snow) land += pack.floraSnow;
+    if (fogMode === "ground") land += GROUND_FOG;
+    let nightLand = "";
+    ridges.forEach((r) => { nightLand += `<path d="${r.d}" fill="${r.night}"/>`; });
+    nightLand += pack.flora(pack.floraNight);
     return `
   <div class="scene" data-ent="${esc(this._config.entity)}">
     <svg viewBox="0 0 520 226" preserveAspectRatio="xMidYMax meet">
@@ -505,18 +580,15 @@ class DesertAlmanacCard extends HTMLElement {
       ${cl.dust ? `<rect x="0" y="0" width="520" height="226" fill="#d9b475" opacity=".22"/>` : ""}
       ${cl.rain ? rainLayer(cl.rain === 2) : ""}
       ${cl.bolts ? BOLTS : ""}
-      ${MOUNTAINS}
-      ${SAGUARO("#6e5232")}
+      ${land}
+      ${cl.snow ? SNOW_LAYER : ""}
       ${cl.dust ? DUST_LAYER : ""}
       ${cl.haboob ? HABOOB_LAYER : ""}
       <rect id="da-wash" x="0" y="0" width="520" height="226" fill="#e8763d" opacity="${wash.toFixed(3)}" class="fade"/>
       ${cl.wash ? `<rect x="0" y="0" width="520" height="226" fill="${cl.wash[0]}" opacity="${cl.wash[1]}"/>` : ""}
       <rect id="da-tint" x="0" y="0" width="520" height="226" fill="#28324e" opacity="${(night * 0.42).toFixed(3)}" class="fade"/>
       <g id="da-nightmtn" opacity="${night.toFixed(3)}" class="fade">
-        <path d="M0 176 L70 138 L130 164 L210 126 L290 166 L370 136 L450 162 L520 140 L520 226 L0 226 Z" fill="#494060"/>
-        <path d="M0 194 L90 162 L170 186 L280 154 L390 188 L480 164 L520 178 L520 226 L0 226 Z" fill="#3c3452"/>
-        <path d="M0 210 L110 190 L240 208 L360 186 L470 206 L520 196 L520 226 L0 226 Z" fill="#2f2944"/>
-        ${SAGUARO("#231e36")}
+        ${nightLand}
       </g>
       <g id="da-stars" fill="#f3ecd8" opacity="${(night * 0.9).toFixed(3)}" class="fade">
         <circle cx="70" cy="38" r="1.6"/><circle cx="150" cy="70" r="1.2"/><circle cx="235" cy="30" r="1.4"/>
@@ -602,6 +674,10 @@ class DesertAlmanacCard extends HTMLElement {
   @keyframes da-billow1 { 0%,100% { transform: translateY(0) scale(1); } 50% { transform: translateY(-7px) scale(1.045); } }
   @keyframes da-billow2 { 0%,100% { transform: translateY(0) scale(1); } 50% { transform: translateY(5px) scale(1.03); } }
   @keyframes da-duststream { from { transform: translateX(0); } to { transform: translateX(-190px); } }
+  @keyframes da-snowfall { from { transform: translateY(-40px); } to { transform: translateY(40px); } }
+  @keyframes da-fog1 { 0%,100% { transform: translateX(0); } 50% { transform: translateX(22px); } }
+  @keyframes da-fog2 { 0%,100% { transform: translateX(0); } 50% { transform: translateX(-26px); } }
+  @keyframes da-fog3 { 0%,100% { transform: translateX(0); } 50% { transform: translateX(16px); } }
   @keyframes da-easpulse { 0%,100% { box-shadow: inset 0 0 0 0 rgba(255,205,150,0); } 50% { box-shadow: inset 0 0 0 2px rgba(255,205,150,.55); } }
   .pad { padding: calc(16*var(--px)) calc(34*var(--px)) 0; }
   .sect { font-size: max(8px, calc(10*var(--px))); font-weight: 700; letter-spacing: calc(3*var(--px)); color: ${TAN}; border-bottom: 1.5px solid ${INK}; padding-bottom: calc(5*var(--px)); }
@@ -672,7 +748,7 @@ window.customCards = window.customCards || [];
 window.customCards.push({
   type: "desert-almanac-card",
   name: "Desert Almanac Card",
-  description: "Editorial almanac-style weather panel with a realtime sun/moon arc over a desert scene, 24-hour chart, and week-ahead outlook.",
+  description: "Editorial almanac-style weather panel: realtime sun/moon arc over a desert or Appalachian scenescape that reacts to conditions, 24-hour chart, week-ahead outlook.",
   preview: true,
   documentationURL: "https://github.com/LoneWolf345/desert-almanac-card",
 });
