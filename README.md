@@ -5,8 +5,9 @@ An editorial, almanac-style weather panel for Home Assistant. Sand-paper backgro
 ## Features
 
 - **Realtime sky** — sun position is computed every minute from your `sun.sun` entity's rise/set times; the moon takes over at night. Dawn/dusk warm washes and the night tint are driven by solar elevation, so the panel always matches the sky outside.
+- **Condition-driven scenes** — the desert scene reacts to the weather: sepia-outlined clouds drift in when partly cloudy; a cumulus-field deck rolls over for cloudy/rain/storms; rain falls; lightning flashes the sky; wind brings gust streaks, dust puffs, and a rolling tumbleweed; and an active **Dust Storm Warning summons a full haboob** — a billowing dust wall that swallows the eastern ridge.
+- **Three-tier alert band** — ink info band from forecast precip probability (label configurable, e.g. `MONSOON WATCH`), ochre advisory band and a pulsing red EAS-style warning band from an optional NWS alerts sensor (`alerts_entity`).
 - **Giant serif temperature** over the scene with condition, high/low, and feels-like; text flips to cream at night so it stays readable.
-- **Rain watch band** — appears only when precipitation probability in the next 24 hours crosses a threshold (default 25%), with the peak timeframe and any accumulation expected tomorrow. Label is configurable (`MONSOON WATCH`, anyone?).
 - **24-hour chart** — smoothed temperature curve with precipitation-probability bars, auto-scaled, with "now" and overnight-low markers.
 - **Conditions strip** — UV index with level, wind + gusts, humidity + dew point, pressure with trend arrow, sunrise · sunset.
 - **Week ahead** — 7 days of hand-drawn ink-line condition icons, precip %, and low→high range bars on a shared scale, with a tick marking the current temperature on today's bar.
@@ -17,6 +18,7 @@ An editorial, almanac-style weather panel for Home Assistant. Sand-paper backgro
 
 - A weather entity that supports **daily and hourly forecasts** (e.g. [Pirate Weather](https://github.com/Pirate-Weather/pirate-weather-ha), Met.no, AccuWeather, OpenWeatherMap). The card subscribes to forecast updates via the modern `weather/subscribe_forecast` API (HA 2023.9+).
 - The `sun` integration (enabled by default) for the realtime arc.
+- *(Optional)* an NWS alerts sensor for the advisory/EAS tiers — either the [NWS Alerts](https://github.com/finity69x2/nws_alerts) HACS integration or any sensor whose state is the active-alert count with an `alerts` attribute listing `{event, severity, ends}`. Without it the card simply never shows tier 2/3 bands.
 
 ## Installation (HACS)
 
@@ -40,6 +42,7 @@ entity: weather.home
 | `location` | HA location name | Location shown after the title |
 | `alert_label` | `RAIN WATCH` | Label for the precipitation band |
 | `alert_threshold` | `25` | Precip probability (%) in the next 24 h that shows the band |
+| `alerts_entity` | *(none)* | NWS alerts sensor for advisory/warning bands + haboob scene |
 | `days` | `7` | Days in the Week Ahead section |
 
 Example with everything:
@@ -50,6 +53,7 @@ entity: weather.home
 location: Maricopa, Arizona
 alert_label: MONSOON WATCH
 alert_threshold: 25
+alerts_entity: sensor.nws_alerts
 ```
 
 ## Notes
@@ -60,7 +64,7 @@ alert_threshold: 25
 
 ## Versioning
 
-This card follows Home Assistant's CalVer style: `YYYY.M.PATCH`. Current: **2026.8.1**.
+This card follows Home Assistant's CalVer style: `YYYY.M.PATCH`. Current: **2026.8.2**.
 
 ---
 
