@@ -5,7 +5,7 @@
  * https://github.com/LoneWolf345/almanac-weather-card
  */
 
-const DAC_VERSION = "2026.8.6";
+const DAC_VERSION = "2026.8.7";
 
 const INK = "#3a2d1f", CREAM = "#f6efdc", PAPER = "#f3e7d3", TAN = "#a3876a",
   BROWN = "#7a6248", TERRA = "#c65f38", AMBER = "#e8a03d", BLUE = "#5f7e94",
@@ -121,7 +121,7 @@ const SCENES = {
       { d: "M0 210 L110 190 L240 208 L360 186 L470 206 L520 196 L520 226 L0 226 Z", day: "#a3764a", night: "#2f2944", cap: "#e8e0cc" },
     ],
     flora: SAGUARO, floraDay: "#6e5232", floraNight: "#231e36", floraSnow: "",
-    dust: true, haboob: true, fog: "ground",
+    dust: true, haboob: true, fog: "ground", flood: false, shelf: false, ice: false, bendable: false,
   },
   appalachia: {
     ridges: (pal) => [
@@ -131,9 +131,79 @@ const SCENES = {
       { d: "M0 214 Q 110 194 240 206 T 470 200 T 520 208 L 520 226 L 0 226 Z", day: pal[3], night: "#222a33", cap: "#ded5be" },
     ],
     flora: SPRUCES, floraDay: "#33492f", floraNight: "#1d2822", floraSnow: SPRUCE_SNOW,
-    dust: false, haboob: false, fog: "valley",
+    dust: false, haboob: false, fog: "valley", flood: true, shelf: true, ice: true, bendable: true,
   },
 };
+/* windy Appalachia: outflow gusts + spruces bending at the trunk */
+const APP_GUSTS = `<g stroke="#8a9382" stroke-width="2" stroke-linecap="round" fill="none">
+<path d="M0 96 q 30 -8 60 0 t 60 0" opacity=".7" style="animation:da-gust 3.4s linear infinite"/>
+<path d="M0 130 q 26 -7 52 0 t 52 0" opacity=".55" style="animation:da-gust 4.4s 1s linear infinite"/>
+<path d="M0 160 q 28 -7 56 0 t 56 0" opacity=".5" style="animation:da-gust 3.8s .5s linear infinite"/></g>`;
+const BENT_SPRUCES = (color) => `
+<g transform="translate(84,214)"><g style="animation:da-treebend 2.8s ease-in-out infinite;transform-box:fill-box;transform-origin:bottom center"><g fill="${color}" transform="translate(0,-2)"><path d="M0 -30 L7 -16 L-7 -16 Z M0 -22 L9 -7 L-9 -7 Z M0 -13 L11 2 L-11 2 Z"/><rect x="-1.5" y="2" width="3" height="5"/></g></g></g>
+<g transform="translate(438,212)"><g style="animation:da-treebend 2.2s .6s ease-in-out infinite;transform-box:fill-box;transform-origin:bottom center"><g fill="${color}" transform="translate(0,-2)"><path d="M0 -32 L7.5 -17 L-7.5 -17 Z M0 -23 L9.5 -7 L-9.5 -7 Z M0 -13 L11.5 2 L-11.5 2 Z"/><rect x="-1.5" y="2" width="3" height="5"/></g></g></g>`;
+/* ice storm: sleet needles, glazed flora, glints; icy ridge-rim fills by layer */
+const ICE_RIMS = ["#e4ecef", "#dee7ea", "#d8e2e6", "#d2dce0"];
+const SLEET_LAYER = `<g stroke="#9fb3c0" stroke-width="1.5" stroke-linecap="round" opacity=".7" style="animation:da-sleet .5s linear infinite">
+<line x1="42" y1="70" x2="40" y2="82"/><line x1="94" y1="104" x2="92" y2="116"/><line x1="146" y1="66" x2="144" y2="78"/>
+<line x1="198" y1="112" x2="196" y2="124"/><line x1="250" y1="74" x2="248" y2="86"/><line x1="302" y1="118" x2="300" y2="130"/>
+<line x1="354" y1="70" x2="352" y2="82"/><line x1="406" y1="108" x2="404" y2="120"/><line x1="458" y1="76" x2="456" y2="88"/>
+<line x1="68" y1="148" x2="66" y2="160"/><line x1="172" y1="154" x2="170" y2="166"/><line x1="276" y1="150" x2="274" y2="162"/>
+<line x1="380" y1="156" x2="378" y2="168"/><line x1="484" y1="148" x2="482" y2="160"/><line x1="120" y1="46" x2="118" y2="58"/>
+<line x1="224" y1="50" x2="222" y2="62"/><line x1="328" y1="44" x2="326" y2="56"/><line x1="432" y1="50" x2="430" y2="62"/></g>`;
+const ICE_GLAZE = `<g stroke="#dfeaee" stroke-width="1.6" stroke-linecap="round" fill="none" opacity=".9">
+<g transform="translate(84,212)"><path d="M-7 -16 L7 -16 M-9 -7 L9 -7 M-11 2 L11 2"/></g>
+<g transform="translate(438,210)"><path d="M-7.5 -17 L7.5 -17 M-9.5 -7 L9.5 -7 M-11.5 2 L11.5 2"/></g></g>
+<g fill="#ffffff"><circle cx="130" cy="139" r="1.8" style="animation:da-glint 5s 1s linear infinite"/>
+<circle cx="340" cy="157" r="1.8" style="animation:da-glint 6s 2.8s linear infinite"/>
+<circle cx="438" cy="196" r="1.6" style="animation:da-glint 4.5s .4s linear infinite"/></g>`;
+/* flash flood: deep muddy water, treetops, foam, currents, drifting debris incl. vehicles */
+const FLOOD_LAYER = `<g fill="#33492f">
+<g transform="translate(84,212)"><path d="M0 -34 L7 -19 L-7 -19 Z M0 -25 L9 -9 L-9 -9 Z M0 -15 L11 1 L-11 1 Z"/></g>
+<g transform="translate(300,216)"><path d="M0 -30 L6.5 -16 L-6.5 -16 Z M0 -21 L8 -6 L-8 -6 Z M0 -12 L10 2 L-10 2 Z"/></g>
+<g transform="translate(438,210)"><path d="M0 -36 L7.5 -20 L-7.5 -20 Z M0 -26 L9.5 -9 L-9.5 -9 Z M0 -15 L11.5 2 L-11.5 2 Z"/></g></g>
+<g style="animation:da-waterrise 8s ease-in-out infinite">
+<rect x="0" y="188" width="520" height="42" fill="#7a5c38"/>
+<rect x="0" y="188" width="520" height="10" fill="#8f6f45"/>
+<g stroke="#d8c9a8" stroke-width="2.2" stroke-linecap="round" opacity=".65"><path d="M6 189 h14 M34 189 h8 M66 189 h16 M108 189 h9 M150 189 h15 M198 189 h8 M244 189 h14 M296 189 h9 M340 189 h16 M392 189 h8 M436 189 h14 M486 189 h10"/></g>
+<g stroke="#b5915c" stroke-width="2" stroke-linecap="round" opacity=".75" fill="none">
+<g style="animation:da-current 5s linear infinite"><path d="M-60 199 q 14 -4 28 0 t 28 0 M-14 210 q 12 -3 24 0 t 24 0"/></g>
+<g style="animation:da-current 6.8s 1.8s linear infinite"><path d="M-70 204 q 15 -4 30 0 t 30 0 M-24 218 q 11 -3 22 0 t 22 0"/></g>
+<g style="animation:da-current 4.2s 3s linear infinite"><path d="M-50 214 q 13 -4 26 0 t 26 0"/></g></g>
+<g stroke="#5f4526" stroke-width="1.8" stroke-linecap="round" opacity=".55" fill="none">
+<g style="animation:da-current 5.9s .9s linear infinite"><path d="M-40 207 q 14 -3 28 0 t 28 0"/></g>
+<g style="animation:da-current 7.6s 3.8s linear infinite"><path d="M-56 221 q 15 -3 30 0 t 30 0"/></g></g>
+<g style="animation:da-logdrift 11s linear infinite"><g transform="translate(0,196)"><g style="animation:da-bob 2.6s ease-in-out infinite">
+<rect x="-16" y="-3" width="34" height="6" rx="3" fill="#54401f"/><circle cx="18" cy="0" r="3" fill="#463516"/><path d="M-16 -1 h30" stroke="#6b532a" stroke-width="1"/></g></g></g>
+<g style="animation:da-logdrift 15s 6s linear infinite"><g transform="translate(0,212)"><g style="animation:da-bob 3.1s ease-in-out infinite">
+<path d="M-8 0 l14 -3 M-2 -2 l6 4" stroke="#54401f" stroke-width="2.4" stroke-linecap="round"/></g></g></g>
+<g style="animation:da-vehdrift 21s 4s linear infinite"><g transform="translate(0,198)"><g style="animation:da-bob 2.9s ease-in-out infinite">
+<g transform="rotate(-5)"><path d="M-21 0 L-17 -3 L-13 -11 Q-12 -13 -9 -13 L7 -13 Q10 -13 12 -10 L15 -3 L19 0 Z" fill="#9c5a4b"/>
+<path d="M-11 -4 L-9 -11 L-2 -11 L-2 -4 Z M1 -4 L1 -11 L6 -11 L9 -4 Z" fill="#d6dbd2" opacity=".9"/></g>
+<path d="M-30 1 h7 M23 1 h8" stroke="#d8c9a8" stroke-width="2" stroke-linecap="round" opacity=".7"/></g></g></g>
+<g style="animation:da-vehdrift 34s 16s linear infinite"><g transform="translate(0,208)"><g style="animation:da-bob 3.4s ease-in-out infinite">
+<g transform="rotate(5)"><path d="M-25 0 L-25 -6 L-9 -6 L-9 -8 L-6 -8 L-3 -15 Q-2 -17 1 -17 L9 -17 Q12 -17 13 -14 L15 -8 L21 -8 L21 0 Z" fill="#5b6b74"/>
+<path d="M-2 -9 L0 -14 L8 -14 L10 -9 Z" fill="#d6dbd2" opacity=".9"/></g>
+<path d="M-33 1 h6 M25 1 h7" stroke="#d8c9a8" stroke-width="2" stroke-linecap="round" opacity=".7"/></g></g></g>
+<g style="animation:da-vehdrift 13s 9s linear infinite"><g transform="translate(0,215)"><g style="animation:da-bob 2.2s ease-in-out infinite">
+<rect x="-6" y="-5" width="12" height="8" rx="3" fill="#7a4527"/><path d="M-3 -5 v8 M3 -5 v8" stroke="#5a3018" stroke-width="1.2"/></g></g></g>
+</g>`;
+/* derecho: charcoal shelf-cloud wall from the west, triple lightning, forked double-strobe strike */
+const DERECHO_WALL = `<g style="animation:da-creepL 12s ease-in-out infinite">
+<g style="animation:da-billow2 8s ease-in-out infinite;transform-box:fill-box;transform-origin:center">
+<path d="M220 0 L220 30 Q 200 64 156 62 Q 140 104 92 96 Q 40 122 -40 100 L-40 0 Z" fill="#4b4e58"/><rect x="-40" y="-2" width="260" height="34" fill="#4b4e58"/></g>
+<g style="animation:da-billow1 6.5s ease-in-out infinite;transform-box:fill-box;transform-origin:center" fill="#5a5e6a">
+<ellipse cx="176" cy="34" rx="52" ry="40"/><ellipse cx="128" cy="62" rx="48" ry="38"/><ellipse cx="72" cy="82" rx="52" ry="40"/>
+<ellipse cx="10" cy="94" rx="56" ry="42"/><ellipse cx="150" cy="8" rx="60" ry="36"/><ellipse cx="60" cy="26" rx="64" ry="42"/><ellipse cx="-10" cy="44" rx="60" ry="46"/></g>
+<g style="animation:da-billow2 5.5s .7s ease-in-out infinite;transform-box:fill-box;transform-origin:center" fill="#6d7268">
+<ellipse cx="196" cy="52" rx="30" ry="24"/><ellipse cx="152" cy="80" rx="28" ry="22"/><ellipse cx="100" cy="98" rx="30" ry="22"/><ellipse cx="36" cy="110" rx="34" ry="24"/></g></g>
+<path d="M210 62 L198 98 L212 96 L194 138 L222 94 L208 96 L222 62 Z" fill="#ffe9a8" style="animation:da-bolt1 6s linear infinite"/>
+<path d="M164 88 L155 114 L166 112 L152 144 L174 110 L163 112 L174 88 Z" fill="#ffe9a8" style="animation:da-bolt2 6s linear infinite"/>
+<g style="animation:da-bolt3 6s linear infinite">
+<path d="M318 46 L304 88 L320 85 L296 140 L308 138 L290 176 L326 122 L310 125 L336 78 L322 81 L336 46 Z" fill="#fff3c4"/>
+<path d="M305 112 L282 128 L296 127 L278 144" stroke="#ffe9a8" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+<circle cx="292" cy="174" r="14" fill="#fff3c4" opacity=".5"/></g>`;
+
 /* valley fog banks, indexed by the gap they sit in (after ridge i) */
 const FOG_BANKS = [
   `<g style="animation:da-fog1 26s ease-in-out infinite"><ellipse cx="120" cy="158" rx="150" ry="16" fill="#f2ecda" opacity=".9"/><ellipse cx="360" cy="152" rx="180" ry="14" fill="#f2ecda" opacity=".85"/></g>`,
@@ -345,6 +415,9 @@ class AlmanacWeatherCard extends HTMLElement {
     const top = norm[0];
     out.dustWarning = norm.some((x) => /dust storm warning/i.test(x.event));
     out.dustAdvisory = norm.some((x) => /blowing dust|dust advisory/i.test(x.event));
+    out.floodWarning = norm.some((x) => /flash flood warning|flood warning/i.test(x.event));
+    out.severeThunder = norm.some((x) => /severe thunderstorm warning|tornado warning/i.test(x.event));
+    out.iceWarning = norm.some((x) => /ice storm warning/i.test(x.event));
     let when = "";
     if (top.ends) {
       const d = new Date(top.ends);
@@ -358,8 +431,11 @@ class AlmanacWeatherCard extends HTMLElement {
   _condLayers(w, nws) {
     const c = w.state, a = w.attributes;
     const pack = SCENES[this._config.scene];
-    const out = { clouds: null, rain: 0, bolts: false, dust: false, haboob: false, snow: false, fog: false, wash: null, condDark: false };
+    const out = { clouds: null, rain: 0, bolts: false, dust: false, haboob: false, snow: false, fog: false, flood: false, derecho: false, ice: false, bend: false, wash: null, condDark: false };
     if (nws.dustWarning && pack.haboob) { out.haboob = true; out.wash = ["#c08a4d", 0.14]; return out; }
+    if (nws.floodWarning && pack.flood) { out.flood = true; out.clouds = "rainfield"; out.rain = 2; out.wash = ["#4a5468", 0.2]; return out; }
+    if (nws.severeThunder && pack.shelf) { out.derecho = true; out.bend = true; out.wash = ["#3c4356", 0.24]; out.condDark = true; return out; }
+    if (nws.iceWarning && pack.ice) { out.ice = true; out.clouds = "icefield"; out.wash = ["#9aa6ac", 0.15]; return out; }
     switch (c) {
       case "partlycloudy": out.clouds = "few"; break;
       case "cloudy": out.clouds = "field"; out.wash = ["#9b8f7a", 0.12]; break;
@@ -376,6 +452,7 @@ class AlmanacWeatherCard extends HTMLElement {
       if ((nws.dustAdvisory || windy) && !out.clouds && !out.rain && !out.fog && !out.snow) { out.dust = true; if (!out.wash) out.wash = ["#d9b475", 0.2]; }
       else if (windy && out.clouds === "few") out.dust = true;
     }
+    if (pack.bendable && windy) out.bend = true;
     return out;
   }
 
@@ -539,13 +616,15 @@ class AlmanacWeatherCard extends HTMLElement {
     const night = clamp01((4 - e) / 10);
     const wash = Math.max(0, 1 - Math.abs(e) / 8) * 0.24;
     const dark = e < 0 || cl.condDark;
-    const tx = cl.haboob ? 200 : 260;
+    const tx = cl.haboob ? 200 : cl.derecho ? 330 : 260;
+    const ty1 = cl.flood ? 150 : 188, ty2 = cl.flood ? 174 : 212, tfs = cl.flood ? 74 : 84;
     const hideSun = cl.haboob || cl.fog || ["field", "rainfield", "stormfield"].includes(cl.clouds);
     let clouds = "";
     if (cl.clouds === "few") clouds = cloudC2(330, 84, 1, "#f8f1e0", "#8a6a3c", "dr1") + cloudC2(118, 56, 0.8, "#f8f1e0", "#8a6a3c", "dr2") + cloudC2(232, 112, 0.55, "#f8f1e0", "#8a6a3c", "dr3");
     else if (cl.clouds === "field") clouds = cl.snow ? cloudField("#cfc7b3", "#9b9280", "#c5bda9", "#8d8472") : cloudField("#e2d7bc", "#a08762", "#d3c5a3", "#8f7550");
     else if (cl.clouds === "rainfield") clouds = cloudField("#b7a88a", "#7d6845", "#a3946f", "#6d5a3a");
     else if (cl.clouds === "stormfield") clouds = cloudField("#9c8d72", "#5f5138", "#857659", "#514530");
+    else if (cl.clouds === "icefield") clouds = cloudField("#c6beab", "#948c7a", "#b9b1a0", "#878071");
     const glow = hideSun && sunP ? `<circle cx="${sunP.x.toFixed(1)}" cy="${Math.max(40, sunP.y).toFixed(1)}" r="26" fill="#e8c187" opacity=".45"/>` : "";
     /* landscape from the scene pack */
     const pack = SCENES[this._config.scene];
@@ -553,13 +632,21 @@ class AlmanacWeatherCard extends HTMLElement {
     const ridges = pack.ridges(APP_PAL[season]);
     const fogMode = cl.fog ? pack.fog : null;
     let land = "";
-    ridges.forEach((r, i) => {
+    if (cl.derecho) land += `<rect x="0" y="0" width="520" height="226" fill="#8c9179" opacity=".22"/>`;
+    const drawRidges = cl.flood ? ridges.slice(0, 3) : ridges;
+    drawRidges.forEach((r, i) => {
       if (fogMode === "valley" && i > 0 && FOG_BANKS[i - 1]) land += FOG_BANKS[i - 1];
       if (cl.snow) land += `<path d="${r.d}" fill="${r.cap}"/><g transform="translate(0,7)"><path d="${r.d}" fill="${r.day}"/></g>`;
+      else if (cl.ice) land += `<path d="${r.d}" fill="${ICE_RIMS[i] || ICE_RIMS[3]}"/><g transform="translate(0,3)"><path d="${r.d}" fill="${r.day}"/></g>`;
       else land += `<path d="${r.d}" fill="${r.day}"/>`;
     });
-    land += pack.flora(pack.floraDay);
-    if (cl.snow) land += pack.floraSnow;
+    if (cl.flood) land += FLOOD_LAYER;
+    else if (cl.bend && pack.bendable) land += BENT_SPRUCES(pack.floraDay);
+    else land += pack.flora(pack.floraDay);
+    if (cl.snow && !cl.flood) land += pack.floraSnow;
+    if (cl.ice) land += ICE_GLAZE;
+    if (cl.derecho) land += DERECHO_WALL + APP_GUSTS;
+    else if (cl.bend && pack.bendable) land += APP_GUSTS;
     if (fogMode === "ground") land += GROUND_FOG;
     let nightLand = "";
     ridges.forEach((r) => { nightLand += `<path d="${r.d}" fill="${r.night}"/>`; });
@@ -580,6 +667,7 @@ class AlmanacWeatherCard extends HTMLElement {
       ${clouds}
       ${cl.dust ? `<rect x="0" y="0" width="520" height="226" fill="#d9b475" opacity=".22"/>` : ""}
       ${cl.rain ? rainLayer(cl.rain === 2) : ""}
+      ${cl.ice ? SLEET_LAYER : ""}
       ${cl.bolts ? BOLTS : ""}
       ${land}
       ${cl.snow ? SNOW_LAYER : ""}
@@ -597,8 +685,8 @@ class AlmanacWeatherCard extends HTMLElement {
         <circle cx="115" cy="102" r="1.1"/><circle cx="380" cy="98" r="1.1"/><circle cx="285" cy="86" r="1.2"/>
       </g>
       ${cl.bolts ? `<rect x="0" y="0" width="520" height="226" fill="#fff6d8" opacity="0" style="animation:da-skyflash 7s linear infinite"/>` : ""}
-      <text id="da-temp" x="${tx}" y="188" text-anchor="middle" font-family="Fraunces, Georgia, serif" font-weight="900" font-size="84" paint-order="stroke" stroke="${dark ? "#1a1f33" : PAPER}" stroke-width="6" stroke-linejoin="round" stroke-opacity="0.55" fill="${dark ? CREAM : INK}" class="fadefill">${r0(a.temperature)}°</text>
-      <text id="da-cond" x="${tx}" y="212" text-anchor="middle" font-family="Archivo, sans-serif" font-weight="700" font-size="11.5" letter-spacing="2.5" paint-order="stroke" stroke="${dark ? "#1a1f33" : PAPER}" stroke-width="3.5" stroke-linejoin="round" stroke-opacity="0.55" fill="${dark ? CREAM : INK}" class="fadefill">${esc(sub)}</text>
+      <text id="da-temp" x="${tx}" y="${ty1}" text-anchor="middle" font-family="Fraunces, Georgia, serif" font-weight="900" font-size="${tfs}" paint-order="stroke" stroke="${dark ? "#1a1f33" : PAPER}" stroke-width="6" stroke-linejoin="round" stroke-opacity="0.55" fill="${dark ? CREAM : INK}" class="fadefill">${r0(a.temperature)}°</text>
+      <text id="da-cond" x="${tx}" y="${ty2}" text-anchor="middle" font-family="Archivo, sans-serif" font-weight="700" font-size="11.5" letter-spacing="2.5" paint-order="stroke" stroke="${dark ? "#1a1f33" : PAPER}" stroke-width="3.5" stroke-linejoin="round" stroke-opacity="0.55" fill="${dark ? CREAM : INK}" class="fadefill">${esc(sub)}</text>
     </svg>
   </div>`;
   }
@@ -679,6 +767,16 @@ class AlmanacWeatherCard extends HTMLElement {
   @keyframes da-fog1 { 0%,100% { transform: translateX(0); } 50% { transform: translateX(22px); } }
   @keyframes da-fog2 { 0%,100% { transform: translateX(0); } 50% { transform: translateX(-26px); } }
   @keyframes da-fog3 { 0%,100% { transform: translateX(0); } 50% { transform: translateX(16px); } }
+  @keyframes da-sleet { from { transform: translateY(-30px); } to { transform: translateY(30px); } }
+  @keyframes da-glint { 0%,88%,100% { opacity: 0; } 92%,94% { opacity: .9; } }
+  @keyframes da-treebend { 0%,100% { transform: skewX(-4deg); } 50% { transform: skewX(-10deg); } }
+  @keyframes da-creepL { 0%,100% { transform: translateX(-26px); } 50% { transform: translateX(0); } }
+  @keyframes da-bolt3 { 0%,62%,68%,100% { opacity: 0; } 63%,64.5% { opacity: 1; } 65%,65.8% { opacity: .25; } 66%,67% { opacity: 1; } }
+  @keyframes da-waterrise { 0%,100% { transform: translateY(4px); } 50% { transform: translateY(-3px); } }
+  @keyframes da-current { from { transform: translateX(-80px); } to { transform: translateX(600px); } }
+  @keyframes da-logdrift { 0% { transform: translateX(-70px) rotate(-2deg); } 50% { transform: translateX(260px) rotate(3deg); } 100% { transform: translateX(600px) rotate(-2deg); } }
+  @keyframes da-vehdrift { from { transform: translateX(-90px); } to { transform: translateX(620px); } }
+  @keyframes da-bob { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-2.5px); } }
   @keyframes da-easpulse { 0%,100% { box-shadow: inset 0 0 0 0 rgba(255,205,150,0); } 50% { box-shadow: inset 0 0 0 2px rgba(255,205,150,.55); } }
   .pad { padding: calc(16*var(--px)) calc(34*var(--px)) 0; }
   .sect { font-size: max(8px, calc(10*var(--px))); font-weight: 700; letter-spacing: calc(3*var(--px)); color: ${TAN}; border-bottom: 1.5px solid ${INK}; padding-bottom: calc(5*var(--px)); }
