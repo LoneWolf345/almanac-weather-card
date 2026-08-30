@@ -1,7 +1,5 @@
 # Almanac Weather Card
 
-*Formerly the Desert Almanac Card — renamed when scenescapes made it useful well beyond the desert. The old `custom:desert-almanac-card` card type still works as an alias.*
-
 An editorial, almanac-style weather panel for Home Assistant. Sand-paper background, serif masthead, and an illustrated desert scene where **the sun and moon ride their real arc across the sky in realtime** — the scene brightens at dawn, washes warm at sunset, and falls dark with stars at night, with both bodies rising and setting behind the mountains.
 
 ## Features
@@ -80,7 +78,7 @@ alerts_entity: sensor.nws_alerts
 
 ## Versioning
 
-This card follows Home Assistant's CalVer style: `YYYY.M.PATCH`. Current: **2026.8.5**.
+This card follows Home Assistant's CalVer style: `YYYY.M.PATCH`. Current: **2026.8.6**.
 
 ---
 

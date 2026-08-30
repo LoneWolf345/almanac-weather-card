@@ -1,11 +1,11 @@
-/* Almanac Weather Card (formerly Desert Almanac Card) — an editorial, almanac-style
- * weather panel for Home Assistant. Sun and moon ride their real arc over a scenescape
- * (desert or Appalachia) that reacts to conditions in realtime; the scene darkens at
- * night. 24-hour temp/precip chart, conditions strip, week-ahead range bars.
+/* Almanac Weather Card — an editorial, almanac-style weather panel for Home Assistant.
+ * Sun and moon ride their real arc over a scenescape (desert or Appalachia) that
+ * reacts to conditions in realtime; the scene darkens at night. 24-hour temp/precip
+ * chart, conditions strip, week-ahead range bars.
  * https://github.com/LoneWolf345/almanac-weather-card
  */
 
-const DAC_VERSION = "2026.8.5";
+const DAC_VERSION = "2026.8.6";
 
 const INK = "#3a2d1f", CREAM = "#f6efdc", PAPER = "#f3e7d3", TAN = "#a3876a",
   BROWN = "#7a6248", TERRA = "#c65f38", AMBER = "#e8a03d", BLUE = "#5f7e94",
@@ -744,8 +744,6 @@ if (!document.getElementById("da-card-font")) {
 }
 
 customElements.define("almanac-weather-card", AlmanacWeatherCard);
-/* legacy tag from when this was the Desert Almanac Card — existing dashboards keep working */
-customElements.define("desert-almanac-card", class extends AlmanacWeatherCard {});
 console.info(`%c ALMANAC-WEATHER-CARD %c ${DAC_VERSION} `, "background:#3a2d1f;color:#f3e7d3;font-weight:700", "background:#c65f38;color:#fff;font-weight:700");
 window.customCards = window.customCards || [];
 window.customCards.push({
