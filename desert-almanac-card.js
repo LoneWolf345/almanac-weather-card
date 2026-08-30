@@ -283,7 +283,9 @@ class DesertAlmanacCard extends HTMLElement {
     })).filter((x) => x.event);
     if (!norm.length && s.attributes.title) norm.push({ event: String(s.attributes.title).split(" - ")[0], severity: "", ends: null });
     if (!norm.length) return out;
-    const rank = (x) => (/warning/i.test(x.event) || ["extreme", "severe"].includes(x.severity)) ? 3 : 2;
+    const rank = (x) => /warning/i.test(x.event) ? 3
+      : /watch|advisory|statement/i.test(x.event) ? 2
+      : ["extreme", "severe"].includes(x.severity) ? 3 : 2;
     norm.sort((a, b) => rank(b) - rank(a));
     const top = norm[0];
     out.dustWarning = norm.some((x) => /dust storm warning/i.test(x.event));
