@@ -113,6 +113,21 @@ const APP_PAL = {
 function seasonOf(month) {
   return [11, 0, 1].includes(month) ? "winter" : month <= 4 ? "spring" : month <= 7 ? "summer" : "autumn";
 }
+/* Great Plains: wheat flats, grain elevator, windpump with a live-wind rotor */
+const PLAINS_PAL = {
+  summer: ["#ddd0ac", "#d3be86", "#c9a95c"],
+  spring: ["#d6d2ac", "#bcc48c", "#9db56a"],
+  autumn: ["#d8cba8", "#c4ad7c", "#a98e58"],
+  winter: ["#ddd8c8", "#d0cab8", "#c2bca8"],
+};
+const PLAINS_FLORA = (color, spinDur, ghost) => `<g${ghost ? ' opacity=".5"' : ""}>
+<g stroke="#7a6b45" stroke-width="1.4" stroke-linecap="round" opacity=".5"><path d="M24 209 v-6 M30 210 v-7 M36 209 v-5 M158 207 v-6 M164 208 v-7 M170 207 v-5 M262 208 v-6 M268 209 v-7 M274 208 v-5 M356 207 v-6 M362 208 v-7 M498 206 v-6 M504 207 v-7"/></g>
+<g fill="${color}" transform="translate(92,222)"><rect x="-9" y="-46" width="18" height="46"/><rect x="-21" y="-30" width="11" height="30"/><rect x="9" y="-24" width="9" height="24"/><path d="M-9 -46 L0 -55 L9 -46 Z"/><rect x="2" y="-53" width="4" height="8"/></g>
+<g transform="translate(432,222)">
+<g stroke="${color}" stroke-width="2" fill="none" stroke-linecap="round"><path d="M-8 0 L0 -36 M8 0 L0 -36 M-5 -13 L5 -13 M-2.7 -25 L2.7 -25"/></g>
+<g transform="translate(0,-38)"><line x1="1" y1="0" x2="11" y2="3" stroke="${color}" stroke-width="2" stroke-linecap="round"/>
+<g style="animation:da-spin ${spinDur || 8}s linear infinite;transform-box:fill-box;transform-origin:center"><circle r="10.5" fill="none" stroke="${color}" stroke-width="1.3"/><path d="M0 -10.5 L0 10.5 M-10.5 0 L10.5 0 M-7.4 -7.4 L7.4 7.4 M-7.4 7.4 L7.4 -7.4" stroke="${color}" stroke-width="1.3"/></g>
+<circle r="1.8" fill="${color}"/></g></g></g>`;
 const SCENES = {
   desert: {
     ridges: () => [
@@ -215,21 +230,6 @@ const DERECHO_WALL = `<g style="animation:da-creepL 12s ease-in-out infinite">
 <path d="M305 112 L282 128 L296 127 L278 144" stroke="#ffe9a8" stroke-width="2.5" stroke-linecap="round" fill="none"/>
 <circle cx="292" cy="174" r="14" fill="#fff3c4" opacity=".5"/></g>`;
 
-/* Great Plains: wheat flats, grain elevator, windpump with a live-wind rotor */
-const PLAINS_PAL = {
-  summer: ["#ddd0ac", "#d3be86", "#c9a95c"],
-  spring: ["#d6d2ac", "#bcc48c", "#9db56a"],
-  autumn: ["#d8cba8", "#c4ad7c", "#a98e58"],
-  winter: ["#ddd8c8", "#d0cab8", "#c2bca8"],
-};
-const PLAINS_FLORA = (color, spinDur, ghost) => `<g${ghost ? ' opacity=".5"' : ""}>
-<g stroke="#7a6b45" stroke-width="1.4" stroke-linecap="round" opacity=".5"><path d="M24 209 v-6 M30 210 v-7 M36 209 v-5 M158 207 v-6 M164 208 v-7 M170 207 v-5 M262 208 v-6 M268 209 v-7 M274 208 v-5 M356 207 v-6 M362 208 v-7 M498 206 v-6 M504 207 v-7"/></g>
-<g fill="${color}" transform="translate(92,222)"><rect x="-9" y="-46" width="18" height="46"/><rect x="-21" y="-30" width="11" height="30"/><rect x="9" y="-24" width="9" height="24"/><path d="M-9 -46 L0 -55 L9 -46 Z"/><rect x="2" y="-53" width="4" height="8"/></g>
-<g transform="translate(432,222)">
-<g stroke="${color}" stroke-width="2" fill="none" stroke-linecap="round"><path d="M-8 0 L0 -36 M8 0 L0 -36 M-5 -13 L5 -13 M-2.7 -25 L2.7 -25"/></g>
-<g transform="translate(0,-38)"><line x1="1" y1="0" x2="11" y2="3" stroke="${color}" stroke-width="2" stroke-linecap="round"/>
-<g style="animation:da-spin ${spinDur || 8}s linear infinite;transform-box:fill-box;transform-origin:center"><circle r="10.5" fill="none" stroke="${color}" stroke-width="1.3"/><path d="M0 -10.5 L0 10.5 M-10.5 0 L10.5 0 M-7.4 -7.4 L7.4 7.4 M-7.4 7.4 L7.4 -7.4" stroke="${color}" stroke-width="1.3"/></g>
-<circle r="1.8" fill="${color}"/></g></g></g>`;
 /* tornado: green light, supercell deck, rotating wall cloud (pre-ridge) + swaying funnel (post-ridge) */
 const TORNADO_SKY = `<rect x="0" y="0" width="520" height="226" fill="#6f7f5e" opacity=".26"/>
 <g fill="#43454e" style="animation:da-deckdrift 22s ease-in-out infinite"><rect x="-20" y="0" width="560" height="40"/>
