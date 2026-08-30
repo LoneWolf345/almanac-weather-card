@@ -5,7 +5,7 @@
  * https://github.com/LoneWolf345/almanac-weather-card
  */
 
-const DAC_VERSION = "2026.8.8";
+const DAC_VERSION = "2026.8.9";
 
 const INK = "#3a2d1f", CREAM = "#f6efdc", PAPER = "#f3e7d3", TAN = "#a3876a",
   BROWN = "#7a6248", TERRA = "#c65f38", AMBER = "#e8a03d", BLUE = "#5f7e94",
@@ -738,7 +738,7 @@ class AlmanacWeatherCard extends HTMLElement {
     return `
   <div class="scene" data-ent="${esc(this._config.entity)}">
     <svg viewBox="0 0 520 226" preserveAspectRatio="xMidYMax meet">
-      <path d="M 10 205 Q 260 -55 510 205" fill="none" stroke="#cfa25f" stroke-width="1.5" stroke-dasharray="2 8" stroke-linecap="round" opacity=".55"/>
+      <path d="M -35 265 Q 260 -75 545 265" fill="none" stroke="#cfa25f" stroke-width="1.5" stroke-dasharray="2 8" stroke-linecap="round" opacity=".55"/>
       <g id="da-sun" transform="translate(${sunP ? sunP.x.toFixed(1) : -100},${sunP ? sunP.y.toFixed(1) : 0})" style="${sunP && !hideSun ? "" : "display:none"}">
         <circle r="52" fill="none" stroke="${AMBER}" stroke-width="1.5" opacity="${cl.dust ? 0 : 0.4}"/>
         <circle r="38" fill="${AMBER}" opacity="${cl.dust ? 0.55 : 1}"/><circle r="30" fill="#f0b45c" opacity="${cl.dust ? 0.6 : 1}"/>
