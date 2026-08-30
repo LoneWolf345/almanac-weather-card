@@ -4,7 +4,7 @@
  * https://github.com/LoneWolf345/desert-almanac-card
  */
 
-const DAC_VERSION = "2026.8.1";
+const DAC_VERSION = "2026.8.2";
 
 const INK = "#3a2d1f", CREAM = "#f6efdc", PAPER = "#f3e7d3", TAN = "#a3876a",
   BROWN = "#7a6248", TERRA = "#c65f38", AMBER = "#e8a03d", BLUE = "#5f7e94",
@@ -45,6 +45,51 @@ function wicon(cond, size, color) {
   const g = WICONS[cond] || WICONS.cloudy;
   return `<svg width="${size}" height="${size}" viewBox="0 0 22 22" fill="none" stroke="${color}" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="display:block">${g}</svg>`;
 }
+
+/* ---- condition scene pieces (C2 sepia-outline clouds, Deck-2 cumulus field) ---- */
+function cloudC2(x, y, s, main, edge, driftCls) {
+  const R = (rx, ry, w, h, r) => `<rect x="${(rx * s).toFixed(1)}" y="${(ry * s).toFixed(1)}" width="${(w * s).toFixed(1)}" height="${(h * s).toFixed(1)}" rx="${(r * s).toFixed(1)}"/>`;
+  const C = (cx, cy, r) => `<circle cx="${(cx * s).toFixed(1)}" cy="${(cy * s).toFixed(1)}" r="${(r * s).toFixed(1)}"/>`;
+  return `<g transform="translate(${x},${y})"><g class="${driftCls}">
+    <g fill="${edge}">${R(-44, -15, 88, 17, 8.5)}${C(-25, -16, 16)}${C(-2, -25, 21)}${C(21, -15, 16)}</g>
+    <g fill="${main}">${R(-42, -13, 84, 15, 7.5)}${C(-25, -16, 14)}${C(-2, -25, 19)}${C(21, -15, 14)}</g>
+  </g></g>`;
+}
+function cloudField(mU, eU, mL, eL) {
+  return cloudC2(70, 34, 1.15, mU, eU, "dr1") + cloudC2(292, 28, 1.25, mU, eU, "dr2") + cloudC2(478, 38, 1.0, mU, eU, "dr3")
+    + cloudC2(170, 74, 1.05, mL, eL, "dr2") + cloudC2(400, 80, 0.95, mL, eL, "dr1") + cloudC2(20, 84, 0.8, mL, eL, "dr3");
+}
+function rainLayer(heavy) {
+  const L = [[40, 96], [88, 120], [136, 98], [184, 126], [232, 102], [280, 128], [328, 100], [376, 124], [424, 98], [472, 122], [64, 150], [160, 156], [256, 152], [352, 158], [448, 152], [112, 60], [208, 64], [304, 62], [400, 66], [496, 60]];
+  const dx = heavy ? 6 : 4, len = heavy ? 18 : 16;
+  const lines = L.map(([x, y]) => `<line x1="${x}" y1="${y}" x2="${x - dx}" y2="${y + len}"/>`).join("");
+  return `<g clip-path="url(#daRainClip)"><g stroke="${BLUE}" stroke-width="${heavy ? 1.8 : 1.6}" stroke-linecap="round" opacity=".62" style="animation:da-rainfall ${heavy ? ".6s" : ".85s"} linear infinite">${lines}</g></g><clipPath id="daRainClip"><rect x="0" y="90" width="520" height="136"/></clipPath>`;
+}
+const BOLTS = `<path d="M150 84 L138 120 L152 118 L134 160 L162 116 L148 118 L162 84 Z" fill="#ffe9a8" style="animation:da-bolt1 7s linear infinite"/><path d="M382 88 L372 118 L384 116 L370 150 L392 114 L380 116 L392 88 Z" fill="#ffe9a8" style="animation:da-bolt2 7s linear infinite"/>`;
+const DUST_LAYER = `<g stroke="#b3915d" stroke-width="2" stroke-linecap="round" fill="none">
+<path d="M0 74 q 30 -8 60 0 t 60 0" opacity=".7" style="animation:da-gust 5s linear infinite"/>
+<path d="M0 118 q 26 -7 52 0 t 52 0" opacity=".55" style="animation:da-gust 6.5s 1.2s linear infinite"/>
+<path d="M0 46 q 22 -6 44 0 t 44 0" opacity=".45" style="animation:da-gust 4.2s 2s linear infinite"/>
+<path d="M0 158 q 28 -7 56 0 t 56 0" opacity=".5" style="animation:da-gust 5.6s .6s linear infinite"/></g>
+<g fill="#cfa96e"><g style="animation:da-puff 7s linear infinite"><ellipse cx="0" cy="96" rx="26" ry="8" opacity=".4"/></g>
+<g style="animation:da-puff 9s 2.5s linear infinite"><ellipse cx="0" cy="140" rx="32" ry="9" opacity=".35"/></g>
+<g style="animation:da-puff 6s 4s linear infinite"><ellipse cx="0" cy="60" rx="22" ry="7" opacity=".3"/></g></g>
+<g style="animation:da-tumble 9s linear infinite"><g transform="translate(0,206)"><g style="animation:da-spin 1.6s linear infinite;transform-box:fill-box;transform-origin:center">
+<circle r="9" fill="none" stroke="#8a6a3c" stroke-width="1.4"/><path d="M-6 -5 L6 5 M-6 5 L6 -5 M0 -9 L0 9 M-9 0 L9 0" stroke="#8a6a3c" stroke-width="1.1"/></g></g></g>`;
+const HABOOB_LAYER = `<g style="animation:da-wallcreep 14s ease-in-out infinite">
+<g style="animation:da-billow2 9s ease-in-out infinite;transform-box:fill-box;transform-origin:center"><path d="M300 226 L300 120 Q 316 70 356 76 Q 372 30 420 42 Q 470 18 520 40 L560 40 L560 226 Z" fill="#8f5c30"/></g>
+<g style="animation:da-billow1 7s ease-in-out infinite;transform-box:fill-box;transform-origin:center" fill="#a76f3e"><ellipse cx="352" cy="120" rx="42" ry="52"/><ellipse cx="396" cy="86" rx="46" ry="48"/><ellipse cx="452" cy="62" rx="52" ry="46"/><ellipse cx="512" cy="50" rx="56" ry="48"/><ellipse cx="380" cy="176" rx="52" ry="56"/><ellipse cx="446" cy="150" rx="58" ry="62"/><ellipse cx="512" cy="130" rx="60" ry="66"/></g>
+<g style="animation:da-billow2 6s .8s ease-in-out infinite;transform-box:fill-box;transform-origin:center" fill="#c08a4d"><ellipse cx="330" cy="196" rx="38" ry="34"/><ellipse cx="342" cy="146" rx="30" ry="28"/><ellipse cx="368" cy="110" rx="26" ry="24"/><ellipse cx="398" cy="70" rx="26" ry="22"/><ellipse cx="436" cy="44" rx="28" ry="20"/></g>
+<g fill="#d3a566" opacity=".85"><ellipse cx="316" cy="220" rx="46" ry="14"/><ellipse cx="380" cy="222" rx="60" ry="16"/><ellipse cx="470" cy="220" rx="70" ry="18"/></g></g>
+<g stroke="#c99e5f" stroke-width="2" stroke-linecap="round" opacity=".7">
+<g style="animation:da-duststream 3.2s linear infinite"><path d="M470 100 h-36 M498 140 h-30 M480 180 h-40 M508 60 h-26"/></g>
+<g style="animation:da-duststream 4.4s 1.1s linear infinite"><path d="M460 120 h-30 M492 160 h-34 M476 76 h-28"/></g></g>`;
+const MOUNTAINS = `<path d="M0 176 L70 138 L130 164 L210 126 L290 166 L370 136 L450 162 L520 140 L520 226 L0 226 Z" fill="#d9b98c"/>
+<path d="M0 194 L90 162 L170 186 L280 154 L390 188 L480 164 L520 178 L520 226 L0 226 Z" fill="#c69b66"/>
+<path d="M0 210 L110 190 L240 208 L360 186 L470 206 L520 196 L520 226 L0 226 Z" fill="#a3764a"/>`;
+const SAGUARO = (color) => `<g stroke="${color}" stroke-linecap="round" stroke-linejoin="round" fill="none">
+<path d="M96 224 V 184" stroke-width="7.5"/><path d="M96 202 H 86 V 190" stroke-width="6"/><path d="M96 208 H 106 V 198" stroke-width="6"/>
+<path d="M431 224 V 196" stroke-width="6"/><path d="M431 208 H 423 V 199" stroke-width="5"/></g>`;
 
 /* point on the sky arc: M -35 265 Q 260 -75 545 265, t in [0,1] */
 function arcPoint(t) {
@@ -111,6 +156,7 @@ class DesertAlmanacCard extends HTMLElement {
       title: "THE DAILY ALMANAC",
       alert_label: "RAIN WATCH",
       alert_threshold: 25,
+      alerts_entity: "",
       days: 7,
       ...config,
     };
@@ -131,7 +177,8 @@ class DesertAlmanacCard extends HTMLElement {
       this._pressHist.push([now, p]);
       this._pressHist = this._pressHist.filter(([t]) => now - t < 4 * 3600000);
     }
-    const sig = JSON.stringify([w.state, w.attributes, s?.state, s?.attributes?.next_rising, this._dailySig, this._hourlySig]);
+    const al = this._config.alerts_entity ? hass.states[this._config.alerts_entity] : null;
+    const sig = JSON.stringify([w.state, w.attributes, s?.state, s?.attributes?.next_rising, al?.state, al?.attributes?.alerts, this._dailySig, this._hourlySig]);
     if (sig !== this._sig) {
       this._sig = sig;
       this._render();
@@ -211,13 +258,64 @@ class DesertAlmanacCard extends HTMLElement {
     setO("da-nightmtn", night.toFixed(3));
     setO("da-stars", (night * 0.9).toFixed(3));
     setO("da-wash", wash.toFixed(3));
-    const dark = e < 0;
+    const dark = e < 0 || this._condDark;
     ["da-temp", "da-cond"].forEach((id) => {
       const el = r.getElementById(id);
       if (el) { el.setAttribute("fill", dark ? CREAM : INK); el.setAttribute("stroke", dark ? "#1a1f33" : PAPER); }
     });
     const dateEl = r.getElementById("da-date");
     if (dateEl) dateEl.textContent = new Date().toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric" });
+  }
+
+  /* ---- NWS alerts (tier 2 advisory / tier 3 warning-EAS) ---- */
+  _nws() {
+    const out = { top: null, dustWarning: false, dustAdvisory: false };
+    const ent = this._config.alerts_entity;
+    if (!ent) return out;
+    const s = this._hass?.states?.[ent];
+    if (!s || !parseInt(s.state)) return out;
+    let list = s.attributes.alerts || s.attributes.Alerts || [];
+    if (!Array.isArray(list)) list = [];
+    const norm = list.map((x) => ({
+      event: String(x.event || x.Event || x.title || ""),
+      severity: String(x.severity || x.Severity || "").toLowerCase(),
+      ends: x.ends || x.Ends || x.expires || x.Expires || null,
+    })).filter((x) => x.event);
+    if (!norm.length && s.attributes.title) norm.push({ event: String(s.attributes.title).split(" - ")[0], severity: "", ends: null });
+    if (!norm.length) return out;
+    const rank = (x) => (/warning/i.test(x.event) || ["extreme", "severe"].includes(x.severity)) ? 3 : 2;
+    norm.sort((a, b) => rank(b) - rank(a));
+    const top = norm[0];
+    out.dustWarning = norm.some((x) => /dust storm warning/i.test(x.event));
+    out.dustAdvisory = norm.some((x) => /blowing dust|dust advisory/i.test(x.event));
+    let when = "";
+    if (top.ends) {
+      const d = new Date(top.ends);
+      if (!isNaN(d)) when = ` — UNTIL ${fmtTime(d)} ${d.getHours() >= 12 ? "PM" : "AM"}`;
+    }
+    out.top = { tier: rank(top), text: `${top.event.toUpperCase()}${when}`, dust: /dust/i.test(top.event) };
+    return out;
+  }
+
+  /* ---- which scene layers does the current condition want ---- */
+  _condLayers(w, nws) {
+    const c = w.state, a = w.attributes;
+    const out = { clouds: null, rain: 0, bolts: false, dust: false, haboob: false, wash: null, condDark: false };
+    if (nws.dustWarning) { out.haboob = true; out.wash = ["#c08a4d", 0.14]; return out; }
+    switch (c) {
+      case "partlycloudy": out.clouds = "few"; break;
+      case "cloudy": out.clouds = "field"; out.wash = ["#9b8f7a", 0.12]; break;
+      case "fog": out.clouds = "field"; out.wash = ["#b8b0a0", 0.3]; break;
+      case "rainy": out.clouds = "rainfield"; out.rain = 1; out.wash = ["#4a5468", 0.14]; break;
+      case "snowy": case "snowy-rainy": out.clouds = "field"; out.rain = 1; out.wash = ["#9b8f7a", 0.12]; break;
+      case "pouring": out.clouds = "rainfield"; out.rain = 2; out.wash = ["#4a5468", 0.2]; break;
+      case "lightning": out.clouds = "stormfield"; out.bolts = true; out.wash = ["#3c4356", 0.26]; out.condDark = true; break;
+      case "lightning-rainy": case "hail": out.clouds = "stormfield"; out.rain = 2; out.bolts = true; out.wash = ["#3c4356", 0.26]; out.condDark = true; break;
+    }
+    const windy = c === "windy" || c === "windy-variant" || (a.wind_gust_speed ?? 0) >= 30;
+    if ((nws.dustAdvisory || windy) && !out.clouds && !out.rain) { out.dust = true; if (!out.wash) out.wash = ["#d9b475", 0.2]; }
+    else if (windy && out.clouds === "few") out.dust = true;
+    return out;
   }
 
   /* ---- alert band ---- */
@@ -287,9 +385,10 @@ class DesertAlmanacCard extends HTMLElement {
     const mp = pts[minI];
     const minMark = minI > 2 ? `<circle cx="${mp[0].toFixed(1)}" cy="${mp[1].toFixed(1)}" r="3" fill="${TERRA}"/><text x="${(mp[0] + 8).toFixed(1)}" y="${(mp[1] - 5).toFixed(1)}" font-size="10" font-weight="700" fill="${TERRA}">${r0(hrs[minI].temperature)}° low</text>` : "";
     const gridT = (f) => Math.round(tMax - (tMax - tMin) * f);
+    const punit = w.attributes.precipitation_unit === "mm" ? "PRECIP %" : "PRECIP %";
     return `
     <div class="pad">
-      <div class="sect">THE NEXT 24 HOURS <span class="sectr">TEMP ${esc(w.attributes.temperature_unit || "°")} · <span style="color:${BLUE}">PRECIP %</span></span></div>
+      <div class="sect">THE NEXT 24 HOURS <span class="sectr">TEMP ${esc(w.attributes.temperature_unit || "°")} · <span style="color:${BLUE}">${punit}</span></span></div>
       <svg viewBox="0 0 452 180" class="chartsvg">
         <line x1="0" y1="18" x2="452" y2="18" stroke="${GRID}"/><line x1="0" y1="62" x2="452" y2="62" stroke="${GRID}"/><line x1="0" y1="106" x2="452" y2="106" stroke="${GRID}"/>
         <text x="0" y="14" font-size="9" fill="${TAN}">${gridT(0)}°</text><text x="0" y="58" font-size="9" fill="${TAN}">${gridT(0.5)}°</text><text x="0" y="102" font-size="9" fill="${TAN}">${gridT(1)}°</text>
@@ -356,58 +455,73 @@ class DesertAlmanacCard extends HTMLElement {
   }
 
   /* ---- scene ---- */
-  _scene(w, sky) {
+  _scene(w, sky, nws) {
     const a = w.attributes;
     const unit = a.temperature_unit || "°";
     const d0 = this._daily?.[0];
+    const cl = this._condLayers(w, nws);
+    this._condDark = cl.condDark;
     const condName = COND_LABEL[w.state] || w.state;
     const heat = heatWord(a.temperature, unit);
     let sub = `${condName}${heat}`.toUpperCase();
-    if (d0) sub += ` · HIGH ${r0(d0.temperature)} · LOW ${r0(d0.templow)}`;
-    if (a.apparent_temperature != null && Math.abs(a.apparent_temperature - a.temperature) >= 2) sub += ` · FEELS ${r0(a.apparent_temperature)}°`;
+    if (cl.haboob) sub = `DUST STORM${a.visibility != null ? ` · VISIBILITY ${a.visibility < 1 ? "< 1" : r0(a.visibility)} ${a.visibility_unit || "MI"}` : ""}${a.wind_gust_speed != null ? ` · GUSTS ${r0(a.wind_gust_speed)}` : ""}`;
+    else {
+      if (d0) sub += ` · HIGH ${r0(d0.temperature)} · LOW ${r0(d0.templow)}`;
+      if (cl.dust && a.wind_gust_speed != null) sub += ` · GUSTS ${r0(a.wind_gust_speed)}`;
+      else if (a.apparent_temperature != null && Math.abs(a.apparent_temperature - a.temperature) >= 2) sub += ` · FEELS ${r0(a.apparent_temperature)}°`;
+    }
     const sunP = sky.sun != null ? arcPoint(sky.sun) : null;
     const moonP = sky.moon != null ? arcPoint(sky.moon) : null;
     const e = sky.elev;
     const night = clamp01((4 - e) / 10);
     const wash = Math.max(0, 1 - Math.abs(e) / 8) * 0.24;
-    const dark = e < 0;
+    const dark = e < 0 || cl.condDark;
+    const tx = cl.haboob ? 200 : 260;
+    const hideSun = cl.haboob || ["field", "rainfield", "stormfield"].includes(cl.clouds);
+    let clouds = "";
+    if (cl.clouds === "few") clouds = cloudC2(330, 84, 1, "#f8f1e0", "#8a6a3c", "dr1") + cloudC2(118, 56, 0.8, "#f8f1e0", "#8a6a3c", "dr2") + cloudC2(232, 112, 0.55, "#f8f1e0", "#8a6a3c", "dr3");
+    else if (cl.clouds === "field") clouds = cloudField("#e2d7bc", "#a08762", "#d3c5a3", "#8f7550");
+    else if (cl.clouds === "rainfield") clouds = cloudField("#b7a88a", "#7d6845", "#a3946f", "#6d5a3a");
+    else if (cl.clouds === "stormfield") clouds = cloudField("#9c8d72", "#5f5138", "#857659", "#514530");
+    const glow = hideSun && sunP ? `<circle cx="${sunP.x.toFixed(1)}" cy="${Math.max(40, sunP.y).toFixed(1)}" r="26" fill="#e8c187" opacity=".45"/>` : "";
     return `
   <div class="scene" data-ent="${esc(this._config.entity)}">
     <svg viewBox="0 0 520 226" preserveAspectRatio="xMidYMax meet">
       <path d="M 10 205 Q 260 -55 510 205" fill="none" stroke="#cfa25f" stroke-width="1.5" stroke-dasharray="2 8" stroke-linecap="round" opacity=".55"/>
-      <g id="da-sun" transform="translate(${sunP ? sunP.x.toFixed(1) : -100},${sunP ? sunP.y.toFixed(1) : 0})" style="${sunP ? "" : "display:none"}">
-        <circle r="52" fill="none" stroke="${AMBER}" stroke-width="1.5" opacity=".4"/>
-        <circle r="38" fill="${AMBER}"/><circle r="30" fill="#f0b45c"/>
+      <g id="da-sun" transform="translate(${sunP ? sunP.x.toFixed(1) : -100},${sunP ? sunP.y.toFixed(1) : 0})" style="${sunP && !hideSun ? "" : "display:none"}">
+        <circle r="52" fill="none" stroke="${AMBER}" stroke-width="1.5" opacity="${cl.dust ? 0 : 0.4}"/>
+        <circle r="38" fill="${AMBER}" opacity="${cl.dust ? 0.55 : 1}"/><circle r="30" fill="#f0b45c" opacity="${cl.dust ? 0.6 : 1}"/>
       </g>
+      ${glow}
       <g id="da-moon" transform="translate(${moonP ? moonP.x.toFixed(1) : -100},${moonP ? moonP.y.toFixed(1) : 0})" style="${moonP ? "" : "display:none"}">
         <circle r="20" fill="#f6efd8"/>
         <circle cx="-7" cy="-4" r="4" fill="#ddd3b6" opacity=".7"/><circle cx="6" cy="6" r="3" fill="#ddd3b6" opacity=".6"/><circle cx="4" cy="-8" r="2.2" fill="#ddd3b6" opacity=".6"/>
       </g>
-      <path d="M0 176 L70 138 L130 164 L210 126 L290 166 L370 136 L450 162 L520 140 L520 226 L0 226 Z" fill="#d9b98c"/>
-      <path d="M0 194 L90 162 L170 186 L280 154 L390 188 L480 164 L520 178 L520 226 L0 226 Z" fill="#c69b66"/>
-      <path d="M0 210 L110 190 L240 208 L360 186 L470 206 L520 196 L520 226 L0 226 Z" fill="#a3764a"/>
-      <g fill="#6e5232">
-        <path d="M92 226 v-40 c0 -6 8 -6 8 0 v40 Z M88 204 c-6 0 -6 -12 0 -12 v-8 c0 -5 7 -5 7 0 v20 Z M103 210 c6 0 6 -14 0 -14 v-6 c0 -5 -7 -5 -7 0 v20 Z"/>
-        <path d="M428 226 v-30 c0 -5 7 -5 7 0 v30 Z M424 210 c-5 0 -5 -10 0 -10 v-5 c0 -4 6 -4 6 0 v15 Z"/>
-      </g>
+      ${clouds}
+      ${cl.dust ? `<rect x="0" y="0" width="520" height="226" fill="#d9b475" opacity=".22"/>` : ""}
+      ${cl.rain ? rainLayer(cl.rain === 2) : ""}
+      ${cl.bolts ? BOLTS : ""}
+      ${MOUNTAINS}
+      ${SAGUARO("#6e5232")}
+      ${cl.dust ? DUST_LAYER : ""}
+      ${cl.haboob ? HABOOB_LAYER : ""}
       <rect id="da-wash" x="0" y="0" width="520" height="226" fill="#e8763d" opacity="${wash.toFixed(3)}" class="fade"/>
+      ${cl.wash ? `<rect x="0" y="0" width="520" height="226" fill="${cl.wash[0]}" opacity="${cl.wash[1]}"/>` : ""}
       <rect id="da-tint" x="0" y="0" width="520" height="226" fill="#28324e" opacity="${(night * 0.42).toFixed(3)}" class="fade"/>
       <g id="da-nightmtn" opacity="${night.toFixed(3)}" class="fade">
         <path d="M0 176 L70 138 L130 164 L210 126 L290 166 L370 136 L450 162 L520 140 L520 226 L0 226 Z" fill="#494060"/>
         <path d="M0 194 L90 162 L170 186 L280 154 L390 188 L480 164 L520 178 L520 226 L0 226 Z" fill="#3c3452"/>
         <path d="M0 210 L110 190 L240 208 L360 186 L470 206 L520 196 L520 226 L0 226 Z" fill="#2f2944"/>
-        <g fill="#231e36">
-          <path d="M92 226 v-40 c0 -6 8 -6 8 0 v40 Z M88 204 c-6 0 -6 -12 0 -12 v-8 c0 -5 7 -5 7 0 v20 Z M103 210 c6 0 6 -14 0 -14 v-6 c0 -5 -7 -5 -7 0 v20 Z"/>
-          <path d="M428 226 v-30 c0 -5 7 -5 7 0 v30 Z M424 210 c-5 0 -5 -10 0 -10 v-5 c0 -4 6 -4 6 0 v15 Z"/>
-        </g>
+        ${SAGUARO("#231e36")}
       </g>
       <g id="da-stars" fill="#f3ecd8" opacity="${(night * 0.9).toFixed(3)}" class="fade">
         <circle cx="70" cy="38" r="1.6"/><circle cx="150" cy="70" r="1.2"/><circle cx="235" cy="30" r="1.4"/>
         <circle cx="330" cy="58" r="1.2"/><circle cx="415" cy="34" r="1.6"/><circle cx="470" cy="78" r="1.2"/>
         <circle cx="115" cy="102" r="1.1"/><circle cx="380" cy="98" r="1.1"/><circle cx="285" cy="86" r="1.2"/>
       </g>
-      <text id="da-temp" x="260" y="188" text-anchor="middle" font-family="Fraunces, Georgia, serif" font-weight="900" font-size="84" paint-order="stroke" stroke="${dark ? "#1a1f33" : PAPER}" stroke-width="6" stroke-linejoin="round" stroke-opacity="0.55" fill="${dark ? CREAM : INK}" class="fadefill">${r0(a.temperature)}°</text>
-      <text id="da-cond" x="260" y="212" text-anchor="middle" font-family="Archivo, sans-serif" font-weight="700" font-size="11.5" letter-spacing="2.5" paint-order="stroke" stroke="${dark ? "#1a1f33" : PAPER}" stroke-width="3.5" stroke-linejoin="round" stroke-opacity="0.55" fill="${dark ? CREAM : INK}" class="fadefill">${esc(sub)}</text>
+      ${cl.bolts ? `<rect x="0" y="0" width="520" height="226" fill="#fff6d8" opacity="0" style="animation:da-skyflash 7s linear infinite"/>` : ""}
+      <text id="da-temp" x="${tx}" y="188" text-anchor="middle" font-family="Fraunces, Georgia, serif" font-weight="900" font-size="84" paint-order="stroke" stroke="${dark ? "#1a1f33" : PAPER}" stroke-width="6" stroke-linejoin="round" stroke-opacity="0.55" fill="${dark ? CREAM : INK}" class="fadefill">${r0(a.temperature)}°</text>
+      <text id="da-cond" x="${tx}" y="212" text-anchor="middle" font-family="Archivo, sans-serif" font-weight="700" font-size="11.5" letter-spacing="2.5" paint-order="stroke" stroke="${dark ? "#1a1f33" : PAPER}" stroke-width="3.5" stroke-linejoin="round" stroke-opacity="0.55" fill="${dark ? CREAM : INK}" class="fadefill">${esc(sub)}</text>
     </svg>
   </div>`;
   }
@@ -430,7 +544,14 @@ class DesertAlmanacCard extends HTMLElement {
       if (s.state !== "above_horizon" && new Date().getHours() < 12) { sunrise = new Date(nr); sunset = new Date(ns); }
     }
     const location = (cfg.location || hass.config.location_name || "").toUpperCase();
-    const alert = this._alert(w);
+    const nws = this._nws();
+    let band = "";
+    if (nws.top?.tier === 3) band = `<div class="band t3"><span>⚠️&nbsp; EAS · ${esc(nws.top.text)}</span></div>`;
+    else if (nws.top) band = `<div class="band t2"><span>${nws.top.dust ? "🌪️" : "⚠️"}&nbsp; ${esc(nws.top.text)}</span></div>`;
+    else {
+      const alert = this._alert(w);
+      if (alert) band = `<div class="band"><span>⛈️&nbsp; ${alert}</span></div>`;
+    }
     const anim = this._animated ? "no-anim" : "";
     this._animated = true;
 
@@ -457,6 +578,27 @@ class DesertAlmanacCard extends HTMLElement {
   .fadefill { transition: fill 2s ease, stroke 2s ease; }
   .band { background: ${INK}; color: ${PAPER}; display: flex; align-items: center; justify-content: center; gap: calc(10*var(--px)); padding: calc(9*var(--px)) calc(20*var(--px)); }
   .band span { font-size: max(8px, calc(11.5*var(--px))); font-weight: 700; letter-spacing: calc(2*var(--px)); text-align: center; }
+  .band.t2 { background: #8a5a17; color: #f6ecd8; }
+  .band.t3 { background: #7e1d10; color: #f6ecd8; border-top: 2px solid ${AMBER}; border-bottom: 2px solid ${AMBER}; animation: da-easpulse 2.2s ease-in-out infinite; }
+  .dr1 { animation: da-dr1 26s ease-in-out infinite; }
+  .dr2 { animation: da-dr2 32s ease-in-out infinite; }
+  .dr3 { animation: da-dr3 22s ease-in-out infinite; }
+  @keyframes da-dr1 { 0%,100% { transform: translateX(0); } 50% { transform: translateX(14px); } }
+  @keyframes da-dr2 { 0%,100% { transform: translateX(0); } 50% { transform: translateX(-16px); } }
+  @keyframes da-dr3 { 0%,100% { transform: translateX(0); } 50% { transform: translateX(10px); } }
+  @keyframes da-rainfall { from { transform: translateY(-36px); } to { transform: translateY(36px); } }
+  @keyframes da-bolt1 { 0%,84%,88%,100% { opacity: 0; } 85%,87% { opacity: 1; } }
+  @keyframes da-bolt2 { 0%,44%,48%,100% { opacity: 0; } 45%,47% { opacity: 1; } }
+  @keyframes da-skyflash { 0%,44%,48%,84%,88%,100% { opacity: 0; } 45%,47% { opacity: .22; } 85%,87% { opacity: .3; } }
+  @keyframes da-gust { from { transform: translateX(-90px); } to { transform: translateX(610px); } }
+  @keyframes da-puff { from { transform: translateX(-120px); } to { transform: translateX(640px); } }
+  @keyframes da-tumble { from { transform: translateX(-50px); } to { transform: translateX(580px); } }
+  @keyframes da-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+  @keyframes da-wallcreep { 0%,100% { transform: translateX(26px); } 50% { transform: translateX(0); } }
+  @keyframes da-billow1 { 0%,100% { transform: translateY(0) scale(1); } 50% { transform: translateY(-7px) scale(1.045); } }
+  @keyframes da-billow2 { 0%,100% { transform: translateY(0) scale(1); } 50% { transform: translateY(5px) scale(1.03); } }
+  @keyframes da-duststream { from { transform: translateX(0); } to { transform: translateX(-190px); } }
+  @keyframes da-easpulse { 0%,100% { box-shadow: inset 0 0 0 0 rgba(255,205,150,0); } 50% { box-shadow: inset 0 0 0 2px rgba(255,205,150,.55); } }
   .pad { padding: calc(16*var(--px)) calc(34*var(--px)) 0; }
   .sect { font-size: max(8px, calc(10*var(--px))); font-weight: 700; letter-spacing: calc(3*var(--px)); color: ${TAN}; border-bottom: 1.5px solid ${INK}; padding-bottom: calc(5*var(--px)); }
   .sectr { float: right; letter-spacing: calc(1*var(--px)); }
@@ -492,8 +634,8 @@ class DesertAlmanacCard extends HTMLElement {
     <div class="date" id="da-date">${new Date().toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric" })}</div>
     <div class="rule"></div>
   </div>
-  ${this._scene(w, sky)}
-  ${alert ? `<div class="band"><span>⛈️&nbsp; ${alert}</span></div>` : ""}
+  ${this._scene(w, sky, nws)}
+  ${band}
   ${this._chart(w)}
   ${this._strip(w, sunrise, sunset)}
   ${this._week(w)}
