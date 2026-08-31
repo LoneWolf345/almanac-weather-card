@@ -78,7 +78,7 @@ alerts_entity: sensor.nws_alerts
 
 ## Versioning
 
-This card follows Home Assistant's CalVer style: `YYYY.M.PATCH`. Current: **2026.8.10**.
+This card follows Home Assistant's CalVer style: `YYYY.M.PATCH`. Current: **2026.8.11**.
 
 ---
 

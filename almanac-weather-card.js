@@ -5,7 +5,7 @@
  * https://github.com/LoneWolf345/almanac-weather-card
  */
 
-const DAC_VERSION = "2026.8.10";
+const DAC_VERSION = "2026.8.11";
 
 const INK = "#3a2d1f", CREAM = "#f6efdc", PAPER = "#f3e7d3", TAN = "#a3876a",
   BROWN = "#7a6248", TERRA = "#c65f38", AMBER = "#e8a03d", BLUE = "#5f7e94",
@@ -510,6 +510,8 @@ class AlmanacWeatherCard extends HTMLElement {
     if (nws.severeThunder && pack.hail) { out.hailstorm = true; out.clouds = "stormfield"; out.bolts = true; out.wash = ["#3c4356", 0.2]; out.condDark = true; return out; }
     if (nws.blizzardWarning && pack.blizzard) { out.blizzard = true; out.wash = ["#f0ece0", 0.38]; return out; }
     if (nws.iceWarning && pack.ice) { out.ice = true; out.clouds = "icefield"; out.wash = ["#9aa6ac", 0.15]; return out; }
+    /* severe thunderstorm fallback: packs without a dedicated scene still go full storm on the warning */
+    if (nws.severeThunder || nws.tornadoWarning) { out.clouds = "stormfield"; out.rain = 2; out.bolts = true; out.wash = ["#3c4356", 0.26]; out.condDark = true; return out; }
     switch (c) {
       case "partlycloudy": out.clouds = "few"; break;
       case "cloudy": out.clouds = "field"; out.wash = ["#9b8f7a", 0.12]; break;
