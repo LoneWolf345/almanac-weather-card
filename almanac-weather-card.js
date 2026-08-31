@@ -5,7 +5,21 @@
  * https://github.com/LoneWolf345/almanac-weather-card
  */
 
-const DAC_VERSION = "2026.8.11";
+const DAC_VERSION = "2026.8.12";
+
+/* Optional local-station observation overrides: config key -> weather attribute.
+ * When set, the entity's value replaces the forecast provider's current reading
+ * everywhere it appears (masthead, strip, windpump, scene logic). */
+const OBS_MAP = [
+  ["obs_temp_entity", "temperature"],
+  ["obs_humidity_entity", "humidity"],
+  ["obs_dew_entity", "dew_point"],
+  ["obs_wind_entity", "wind_speed"],
+  ["obs_gust_entity", "wind_gust_speed"],
+  ["obs_bearing_entity", "wind_bearing"],
+  ["obs_pressure_entity", "pressure"],
+];
+const OBS_KEYS = OBS_MAP.map(([k]) => k).concat(["obs_uv_entity"]);
 
 const INK = "#3a2d1f", CREAM = "#f6efdc", PAPER = "#f3e7d3", TAN = "#a3876a",
   BROWN = "#7a6248", TERRA = "#c65f38", AMBER = "#e8a03d", BLUE = "#5f7e94",
@@ -351,6 +365,14 @@ class AlmanacWeatherCard extends HTMLElement {
       scene: "desert",
       seasons: false,
       days: 7,
+      obs_temp_entity: "",
+      obs_humidity_entity: "",
+      obs_dew_entity: "",
+      obs_wind_entity: "",
+      obs_gust_entity: "",
+      obs_bearing_entity: "",
+      obs_pressure_entity: "",
+      obs_uv_entity: "",
       ...config,
     };
     if (!SCENES[this._config.scene]) this._config.scene = "desert";
@@ -365,14 +387,15 @@ class AlmanacWeatherCard extends HTMLElement {
     const w = hass.states[this._config.entity];
     const s = hass.states[this._config.sun_entity];
     if (!w) { this._renderError(`Entity not found: ${this._config.entity}`); return; }
-    const p = w.attributes.pressure;
+    const p = this._effWeather(w).attributes.pressure;
     if (p != null) {
       const now = Date.now();
       this._pressHist.push([now, p]);
       this._pressHist = this._pressHist.filter(([t]) => now - t < 4 * 3600000);
     }
     const al = this._config.alerts_entity ? hass.states[this._config.alerts_entity] : null;
-    const sig = JSON.stringify([w.state, w.attributes, s?.state, s?.attributes?.next_rising, al?.state, al?.attributes?.alerts, this._dailySig, this._hourlySig]);
+    const obsSig = OBS_KEYS.map((k) => { const e = this._config[k]; return e ? hass.states[e]?.state : ""; }).join("|");
+    const sig = JSON.stringify([w.state, w.attributes, obsSig, s?.state, s?.attributes?.next_rising, al?.state, al?.attributes?.alerts, this._dailySig, this._hourlySig]);
     if (sig !== this._sig) {
       this._sig = sig;
       this._render();
@@ -411,6 +434,32 @@ class AlmanacWeatherCard extends HTMLElement {
         this._sig = ""; if (this._hass) this.hass = this._hass;
       }, { type: "weather/subscribe_forecast", entity_id: ent, forecast_type: "hourly" }));
     }
+  }
+
+  /* ---- local-station observation overrides ---- */
+  _effWeather(w) {
+    const c = this._config, h = this._hass;
+    let a = null;
+    for (const [key, attr] of OBS_MAP) {
+      const ent = c[key];
+      if (!ent) continue;
+      const s = h?.states?.[ent];
+      if (!s || s.state === "unknown" || s.state === "unavailable") continue;
+      const v = Number(s.state);
+      if (!isFinite(v)) continue;
+      if (!a) a = { ...w.attributes };
+      a[attr] = v;
+      if (key === "obs_pressure_entity" && s.attributes.unit_of_measurement) a.pressure_unit = s.attributes.unit_of_measurement;
+    }
+    return a ? { state: w.state, attributes: a, entity_id: w.entity_id } : w;
+  }
+  _obsUv() {
+    const ent = this._config.obs_uv_entity;
+    if (!ent) return null;
+    const s = this._hass?.states?.[ent];
+    if (!s || s.state === "unknown" || s.state === "unavailable") return null;
+    const v = Number(s.state);
+    return isFinite(v) ? v : null;
   }
 
   /* ---- sun / moon / night state ---- */
@@ -623,21 +672,22 @@ class AlmanacWeatherCard extends HTMLElement {
   /* ---- conditions strip ---- */
   _strip(w, sunrise, sunset) {
     const a = w.attributes;
-    const uv = this._daily?.[0]?.uv_index;
+    const uv = this._obsUv() ?? this._daily?.[0]?.uv_index;
     let trend = "";
     if (this._pressHist.length > 1) {
       const d = this._pressHist[this._pressHist.length - 1][1] - this._pressHist[0][1];
       const thr = (a.pressure_unit === "hPa" || a.pressure_unit === "mbar") ? 0.7 : 0.02;
       trend = d > thr ? "↑" : d < -thr ? "↓" : "";
     }
-    const cell = (v, l, warm) => `<div class="cell" data-ent="${esc(this._config.entity)}"><div class="cv"${warm ? ` style="color:${TERRA}"` : ""}>${v}</div><div class="cl">${l}</div></div>`;
+    const c = this._config;
+    const cell = (v, l, warm, ent) => `<div class="cell" data-ent="${esc(ent || c.entity)}"><div class="cv"${warm ? ` style="color:${TERRA}"` : ""}>${v}</div><div class="cl">${l}</div></div>`;
     const wind = a.wind_speed != null ? `${compass(a.wind_bearing)} ${r0(a.wind_speed)}` : "—";
     const gust = a.wind_gust_speed != null ? ` · G ${r0(a.wind_gust_speed)}` : "";
     return `<div class="strip">
-      ${cell(uv != null ? Number(uv).toFixed(1) : "—", `UV${uv != null ? " · " + uvWord(uv) : ""}`, uv >= 8)}
-      ${cell(esc(wind), `WIND${esc(gust)}`)}
-      ${cell(a.humidity != null ? r0(a.humidity) + "%" : "—", `HUM${a.dew_point != null ? " · DEW " + r0(a.dew_point) + "°" : ""}`)}
-      ${cell(a.pressure != null ? a.pressure + trend : "—", "PRESSURE")}
+      ${cell(uv != null ? Number(uv).toFixed(1) : "—", `UV${uv != null ? " · " + uvWord(uv) : ""}`, uv >= 8, c.obs_uv_entity)}
+      ${cell(esc(wind), `WIND${esc(gust)}`, false, c.obs_wind_entity)}
+      ${cell(a.humidity != null ? r0(a.humidity) + "%" : "—", `HUM${a.dew_point != null ? " · DEW " + r0(a.dew_point) + "°" : ""}`, false, c.obs_humidity_entity)}
+      ${cell(a.pressure != null ? a.pressure + trend : "—", "PRESSURE", false, c.obs_pressure_entity)}
       <div class="cell" data-ent="${esc(this._config.sun_entity)}"><div class="cv">${fmtTime(sunrise)} · ${fmtTime(sunset)}</div><div class="cl">SUNRISE · SET</div></div>
     </div>`;
   }
@@ -785,8 +835,9 @@ class AlmanacWeatherCard extends HTMLElement {
 
   _render() {
     const hass = this._hass, cfg = this._config;
-    const w = hass.states[cfg.entity];
-    if (!w) return;
+    const w0 = hass.states[cfg.entity];
+    if (!w0) return;
+    const w = this._effWeather(w0);
     const s = hass.states[cfg.sun_entity];
     const sky = this._skyState();
     let sunrise = null, sunset = null;

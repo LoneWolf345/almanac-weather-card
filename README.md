@@ -59,6 +59,24 @@ entity: weather.home
 | `scene` | `desert` | Scenescape: `desert`, `appalachia`, or `plains` |
 | `seasons` | `false` | Appalachia/plains: landscape palette follows the calendar (spring/summer/autumn/winter) |
 | `days` | `7` | Days in the Week Ahead section |
+| `obs_temp_entity` | — | Local station override for the current temperature |
+| `obs_humidity_entity` / `obs_dew_entity` | — | Local humidity / dew point overrides |
+| `obs_wind_entity` / `obs_gust_entity` / `obs_bearing_entity` | — | Local wind speed / gust / direction overrides (also drive the windpump and tree bend) |
+| `obs_pressure_entity` | — | Local pressure override (trend threshold follows the entity's unit) |
+| `obs_uv_entity` | — | Local UV index override (otherwise UV comes from the daily forecast) |
+
+**Own a weather station?** Point the `obs_*` options at its sensors and the masthead temperature, conditions strip, windpump spin, and tree bend all run on your actual backyard readings, while the chart, week ahead, and alert bands stay forecast-driven:
+
+```yaml
+obs_temp_entity: sensor.weather_station_temperature
+obs_humidity_entity: sensor.weather_station_humidity
+obs_dew_entity: sensor.weather_station_dew_point
+obs_wind_entity: sensor.weather_station_wind_speed
+obs_gust_entity: sensor.weather_station_wind_gust
+obs_bearing_entity: sensor.weather_station_wind_direction
+obs_pressure_entity: sensor.weather_station_pressure_inhg
+obs_uv_entity: sensor.weather_station_uv_index
+```
 
 Example with everything:
 
@@ -90,7 +108,7 @@ alerts_entity: sensor.nws_alerts
 
 ## Versioning
 
-This card follows Home Assistant's CalVer style: `YYYY.M.PATCH`. Current: **2026.8.11**.
+This card follows Home Assistant's CalVer style: `YYYY.M.PATCH`. Current: **2026.8.12**.
 
 ---
 
