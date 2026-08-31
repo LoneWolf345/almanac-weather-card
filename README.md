@@ -2,6 +2,18 @@
 
 An editorial, almanac-style weather panel for Home Assistant. Sand-paper background, serif masthead, and an illustrated desert scene where **the sun and moon ride their real arc across the sky in realtime** — the scene brightens at dawn, washes warm at sunset, and falls dark with stars at night, with both bodies rising and setting behind the mountains.
 
+## Gallery
+
+| | |
+|:---:|:---:|
+| <img src="docs/scenes/desert-clear.png" width="380"><br>**Desert · clear** — saguaros under the midday sun | <img src="docs/scenes/desert-haboob.png" width="380"><br>**Desert · Dust Storm Warning** — the haboob wall rolls in |
+| <img src="docs/scenes/appalachia-summer.png" width="380"><br>**Appalachia · summer** — layered ridges and spruces | <img src="docs/scenes/appalachia-fog.png" width="380"><br>**Appalachia · fog** — valley fog between the ridge lines |
+| <img src="docs/scenes/appalachia-flood.png" width="380"><br>**Appalachia · Flash Flood Warning** — muddy water takes the valley, debris and a swamped car drift by | <img src="docs/scenes/appalachia-derecho.png" width="380"><br>**Appalachia · Severe Thunderstorm Warning** — derecho shelf cloud with triple lightning |
+| <img src="docs/scenes/appalachia-ice.png" width="380"><br>**Appalachia · Ice Storm Warning** — glazed ridges under falling sleet | <img src="docs/scenes/plains-tornado.png" width="380"><br>**Plains · Tornado Warning** — supercell funnel and debris under a mammatus sky |
+| <img src="docs/scenes/plains-sundogs.png" width="380"><br>**Plains · sun dogs** — mock suns on the 22° halo at −8°F | <img src="docs/scenes/plains-blizzard.png" width="380"><br>**Plains · Blizzard Warning** — whiteout with horizontal snow |
+
+*Stills from the live card. Every scene is animated — drifting clouds, falling rain and snow, the swaying funnel, the creeping shelf cloud — and the sun/moon ride their real arc through the day.*
+
 ## Features
 
 - **Realtime sky** — sun position is computed every minute from your `sun.sun` entity's rise/set times; the moon takes over at night. Dawn/dusk warm washes and the night tint are driven by solar elevation, so the panel always matches the sky outside.
