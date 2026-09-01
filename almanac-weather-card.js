@@ -5,7 +5,7 @@
  * https://github.com/LoneWolf345/almanac-weather-card
  */
 
-const DAC_VERSION = "2026.8.14";
+const DAC_VERSION = "2026.8.15";
 
 /* Optional local-station observation overrides: config key -> weather attribute.
  * When set, the entity's value replaces the forecast provider's current reading
@@ -859,6 +859,11 @@ class AlmanacWeatherCard extends HTMLElement {
     }
     const anim = this._animated ? "no-anim" : "";
     this._animated = true;
+    // Until both forecasts have arrived the card is the short version; hold the last
+    // full height so a page scrolled during load doesn't jump when the chart/week fill in.
+    const loaded = !!(this._daily && this._hourly);
+    const reserve = loaded ? 0 : this._reserve();
+    this.style.minHeight = reserve ? reserve + "px" : "";
 
     this.shadowRoot.innerHTML = `
 <style>
@@ -979,7 +984,15 @@ class AlmanacWeatherCard extends HTMLElement {
         }));
       });
     });
+    if (loaded) requestAnimationFrame(() => this._remember());
   }
+
+  // Height memory: WebKit has no scroll anchoring and Chrome's is defeated by innerHTML
+  // re-renders, so late-arriving content above the viewport shifts the page. Remember the
+  // rendered height per device and reserve it on the next load until the data is back.
+  _hkey() { return "awc-h:" + (this._config.entity || ""); }
+  _reserve() { try { const v = parseInt(localStorage.getItem(this._hkey()), 10); return v > 40 ? v : 0; } catch (e) { return 0; } }
+  _remember() { try { const h = Math.round(this.getBoundingClientRect().height); if (h > 40) localStorage.setItem(this._hkey(), String(h)); } catch (e) { /* storage unavailable */ } }
 
   getCardSize() { return 9; }
 }
