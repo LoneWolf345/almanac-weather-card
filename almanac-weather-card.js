@@ -5,7 +5,7 @@
  * https://github.com/LoneWolf345/almanac-weather-card
  */
 
-const DAC_VERSION = "2026.8.16";
+const DAC_VERSION = "2026.8.17";
 
 /* Optional local-station observation overrides: config key -> weather attribute.
  * When set, the entity's value replaces the forecast provider's current reading
@@ -864,6 +864,7 @@ class AlmanacWeatherCard extends HTMLElement {
     const loaded = !!(this._daily && this._hourly);
     const reserve = loaded ? 0 : this._reserve();
     this.style.minHeight = reserve ? reserve + "px" : "";
+    this._pin();
 
     this.shadowRoot.innerHTML = `
 <style>
@@ -984,8 +985,15 @@ class AlmanacWeatherCard extends HTMLElement {
         }));
       });
     });
+    this._unpin(reserve);
     if (loaded) setTimeout(() => this._remember(), 60);
   }
+
+  // WebKit clamps the scroll position the instant a card's old content is removed for a
+  // re-render (before the new content is laid out) — on a phone at the bottom of the page
+  // that scrolls it up by the card's height. Pin the host at its current height across the swap.
+  _pin() { try { const h = Math.round(this.getBoundingClientRect().height); if (h > 0) this.style.minHeight = Math.max(h, parseFloat(this.style.minHeight) || 0) + "px"; } catch (e) { /* not in a document */ } }
+  _unpin(reserve) { setTimeout(() => { this.style.minHeight = reserve ? reserve + "px" : ""; }, 0); }
 
   // Height memory: WebKit has no scroll anchoring and Chrome's is defeated by innerHTML
   // re-renders, so late-arriving content above the viewport shifts the page. Remember the
