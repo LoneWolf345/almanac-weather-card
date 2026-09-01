@@ -5,7 +5,7 @@
  * https://github.com/LoneWolf345/almanac-weather-card
  */
 
-const DAC_VERSION = "2026.8.15";
+const DAC_VERSION = "2026.8.16";
 
 /* Optional local-station observation overrides: config key -> weather attribute.
  * When set, the entity's value replaces the forecast provider's current reading
@@ -984,7 +984,7 @@ class AlmanacWeatherCard extends HTMLElement {
         }));
       });
     });
-    if (loaded) requestAnimationFrame(() => this._remember());
+    if (loaded) setTimeout(() => this._remember(), 60);
   }
 
   // Height memory: WebKit has no scroll anchoring and Chrome's is defeated by innerHTML
