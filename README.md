@@ -100,6 +100,15 @@ alert_label: STORM WATCH
 alerts_entity: sensor.nws_alerts
 ```
 
+## Theming hooks (newspaper mode)
+
+The card paints its own paper by default, but two CSS variables let a theme turn a dashboard into a single printed sheet:
+
+| Variable | Default | Effect |
+|---|---|---|
+| `--almanac-paper` | `#f3e7d3` | Card background — set `transparent` to let a paper-toned page show through |
+| `--almanac-column-rule` | `transparent` | Color of a 1px vertical rule drawn in the gutter to the card's left (`--almanac-gutter`, default 16px) |
+
 ## Notes
 
 - The card commits to its almanac look (sand paper, ink text) in light and dark themes alike.
@@ -108,7 +117,7 @@ alerts_entity: sensor.nws_alerts
 
 ## Versioning
 
-This card follows Home Assistant's CalVer style: `YYYY.M.PATCH`. Current: **2026.8.12**.
+This card follows Home Assistant's CalVer style: `YYYY.M.PATCH`. Current: **2026.8.13**.
 
 ---
 

@@ -5,7 +5,7 @@
  * https://github.com/LoneWolf345/almanac-weather-card
  */
 
-const DAC_VERSION = "2026.8.12";
+const DAC_VERSION = "2026.8.13";
 
 /* Optional local-station observation overrides: config key -> weather attribute.
  * When set, the entity's value replaces the forecast provider's current reading
@@ -863,10 +863,12 @@ class AlmanacWeatherCard extends HTMLElement {
 <style>
   :host { display: block; }
   * { box-sizing: border-box; }
-  .wrap { container-type: inline-size; }
+  .wrap { container-type: inline-size; position: relative; }
+  /* newspaper mode: a theme can draw a column rule in the gutter to the left (--almanac-column-rule) */
+  .wrap::before { content: ""; position: absolute; top: 0; bottom: 0; left: calc(-1 * var(--almanac-gutter, 16px)); width: 1px; background: var(--almanac-column-rule, transparent); }
   .card {
     --px: max(0.5px, 0.1923cqw);
-    background: ${PAPER}; color: ${INK};
+    background: var(--almanac-paper, ${PAPER}); color: ${INK};
     border-radius: var(--ha-card-border-radius, 14px);
     box-shadow: var(--ha-card-box-shadow, 0 4px 16px rgba(0,0,0,.18));
     overflow: hidden; font-family: Archivo, 'Segoe UI', sans-serif;
