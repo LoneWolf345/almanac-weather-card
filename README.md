@@ -64,6 +64,7 @@ entity: weather.home
 | `obs_wind_entity` / `obs_gust_entity` / `obs_bearing_entity` | — | Local wind speed / gust / direction overrides (also drive the windpump and tree bend) |
 | `obs_pressure_entity` | — | Local pressure override (trend threshold follows the entity's unit) |
 | `obs_uv_entity` | — | Local UV index override (otherwise UV comes from the daily forecast) |
+| `column_rule` | `false` | Draw a 1px newspaper column rule in the gutter to the card's left (color `--almanac-column-rule`, offset `--almanac-gutter`) |
 
 **Own a weather station?** Point the `obs_*` options at its sensors and the masthead temperature, conditions strip, windpump spin, and tree bend all run on your actual backyard readings, while the chart, week ahead, and alert bands stay forecast-driven:
 
@@ -107,7 +108,7 @@ The card paints its own paper by default, but two CSS variables let a theme turn
 | Variable | Default | Effect |
 |---|---|---|
 | `--almanac-paper` | `#f3e7d3` | Card background — set `transparent` to let a paper-toned page show through |
-| `--almanac-column-rule` | `transparent` | Color of a 1px vertical rule drawn in the gutter to the card's left (`--almanac-gutter`, default 16px) |
+| `--almanac-column-rule` | `#2b2118` | Color of the `column_rule` line (`--almanac-gutter` sets its offset, default 16px) |
 
 ## Notes
 
@@ -117,7 +118,7 @@ The card paints its own paper by default, but two CSS variables let a theme turn
 
 ## Versioning
 
-This card follows Home Assistant's CalVer style: `YYYY.M.PATCH`. Current: **2026.8.13**.
+This card follows Home Assistant's CalVer style: `YYYY.M.PATCH`. Current: **2026.8.14**.
 
 ---
 

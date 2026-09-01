@@ -5,7 +5,7 @@
  * https://github.com/LoneWolf345/almanac-weather-card
  */
 
-const DAC_VERSION = "2026.8.13";
+const DAC_VERSION = "2026.8.14";
 
 /* Optional local-station observation overrides: config key -> weather attribute.
  * When set, the entity's value replaces the forecast provider's current reading
@@ -373,6 +373,7 @@ class AlmanacWeatherCard extends HTMLElement {
       obs_bearing_entity: "",
       obs_pressure_entity: "",
       obs_uv_entity: "",
+      column_rule: false,
       ...config,
     };
     if (!SCENES[this._config.scene]) this._config.scene = "desert";
@@ -865,7 +866,7 @@ class AlmanacWeatherCard extends HTMLElement {
   * { box-sizing: border-box; }
   .wrap { container-type: inline-size; position: relative; }
   /* newspaper mode: a theme can draw a column rule in the gutter to the left (--almanac-column-rule) */
-  .wrap::before { content: ""; position: absolute; top: 0; bottom: 0; left: calc(-1 * var(--almanac-gutter, 16px)); width: 1px; background: var(--almanac-column-rule, transparent); }
+  .wrap::before { content: ""; position: absolute; top: 0; bottom: 0; left: calc(-1 * var(--almanac-gutter, 16px)); width: 1px; background: ${cfg.column_rule ? "var(--almanac-column-rule, #2b2118)" : "transparent"}; }
   .card {
     --px: max(0.5px, 0.1923cqw);
     background: var(--almanac-paper, ${PAPER}); color: ${INK};
